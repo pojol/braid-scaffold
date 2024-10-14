@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+package user;
+
+import "gogo/gogo.proto";
+import "commproto/comm.proto";
+
+// -----------------  user modules -----------------\
+message UserBagModule {
+  string ID = 1 [(gogoproto.moretags) = "bson:\"id\""];
+  
+  // key: Dictionary ID of the item
+  // value: For a given dictionary ID, there may be multiple non-stackable item instances
+  map<int32, commproto.ItemList> Bag = 2 [(gogoproto.moretags) = "bson:\"bag\""];
+}
+
+
+// -----------------  user -----------------
+message UserModule {
+  string ID = 1 [(gogoproto.moretags) = "bson:\"id\""];
+
+  string OpenID = 2 [(gogoproto.moretags) = "bson:\"open_id\""];
+  string Token = 3 [(gogoproto.moretags) = "bson:\"token\""];
+}
