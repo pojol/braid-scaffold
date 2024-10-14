@@ -13,6 +13,7 @@ package template
   // dynamic - 动态 actor 运行时装载，用户自行通过 picker 装载
 // unique: 布尔值，表示该 Actor类型 在节点中是否唯一
 // options: 可选的 Actor 配置项（在 node.yml 中定义
+  // 通用可选项
   // weight - 整数，表示 Actor 的权重，用于负载均衡
   // limit - 整数，表示 Actor 的全局数量限制，0 表示无限制
 
@@ -20,26 +21,32 @@ const (
   // WebSocket 接收器
   // 用于接受 WebSocket 连接的 Actor
   // 选项:
-  //   - port: WebSocket 服务器端口
+  // port: WebSocket 服务器端口
     ACTOR_WEBSOCKET_ACCEPTOR = "WEBSOCKET_ACCEPTOR"
 
-  // weight: 800
-  // options 部分被移除，将在 node conf.yml 中定义
-  // - port 对外端口号
-  // like:
-  //options:
-  //  port: "8008"
+  // HTTP 接收器
+  // 用于接受 HTTP 连接的 Actor
+  // 选项:
+  // port: HTTP 服务器端口
+    ACTOR_HTTP_ACCEPTOR = "HTTP_ACCEPTOR"
+
+  // 角色 actor
     ACTOR_USER = "USER"
 
   // 动态选择器
-  // 用于动态选择其他 Actor 的 Actor
+  // 用于将注册 actor 的行为通过负载均衡的方式调配给不同的 register
+  // picker 可以分布在不同的节点上
+  // 性能:
+  //   I/O 复杂度: O(1)
+  //   时间复杂度: O(n log n)，其中 n 是节点数量
     ACTOR_DYNAMIC_PICKER = "DYNAMIC_PICKER"
 
   // 动态注册器
-  // 用于动态注册其他 Actor 的 Actor
+  // 用于动态的将 actor 注册到本节点中
     ACTOR_DYNAMIC_REGISTER = "DYNAMIC_REGISTER"
 
-// actor 控制
+  // actor 控制器
+  // 主要提供当前节点中的 actor 的各种管理操作（移除，迁移 ...
     ACTOR_CONTROL = "CONTROL"
 
 )

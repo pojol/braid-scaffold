@@ -94,7 +94,7 @@ func ParseConfigFromString(confData, actorTypesData string) (*NodeConfig, []Acto
 	for _, registeredActor := range config.Node.ActorOpts {
 		actorType, ok := actorTypeMap[registeredActor.Name]
 		if !ok {
-			return nil, nil, fmt.Errorf("actor %s is registered in conf.yml but not defined in actor_types.yml", registeredActor.Name)
+			return nil, nil, fmt.Errorf("actor %s is registered in node.yml but not defined in actor_template.yml", registeredActor.Name)
 		}
 
 		actor := ActorConfig{

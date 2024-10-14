@@ -11,11 +11,3 @@ node:
       weight: 100
       options:
         port: "8008"
-    - name: "CHAT"
-      weight: 10000
-      options:
-        channel : "global"
-    - name: "CHAT"
-      weight: 50
-      options:
-        channel : "guild"

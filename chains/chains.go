@@ -17,4 +17,7 @@ const (
 	// customOptions:
 	// - actor_id: string
 	UnregisterActor = "braid.chains.unregister_actor"
+
+	// EvHttpHello is used to handle http requests
+	HttpHello = "braid.chains.http_hello"
 )

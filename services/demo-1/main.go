@@ -39,6 +39,16 @@ func main() {
 		),
 	)
 
+	for _, base := range actorTypes {
+		if base.Category == "core" {
+			builder := nod.System().Loader(base.Name).WithID(nodeCfg.ID + "_" + base.Name)
+			_, err = builder.Build()
+			if err != nil {
+				panic(err.Error())
+			}
+		}
+	}
+
 	for _, regActor := range nodeCfg.ActorOpts {
 		builder := nod.System().Loader(regActor.Name).WithID(nodeCfg.ID + "_" + regActor.Name)
 		for key, val := range regActor.Options {

@@ -25,6 +25,8 @@ func BuildActorFactory(actorcfg []template.ActorConfig) *MockActorFactory {
 			create = NewDynamicPickerActor
 		case template.ACTOR_DYNAMIC_REGISTER:
 			create = NewDynamicRegisterActor
+		case template.ACTOR_HTTP_ACCEPTOR:
+			create = NewHttpAcceptorActor
 		case template.ACTOR_CONTROL:
 			create = NewControlActor
 			// todo ...

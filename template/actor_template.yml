@@ -20,7 +20,14 @@ actor_templates:
   # port: WebSocket 服务器端口
 - name: "WEBSOCKET_ACCEPTOR"
   unique: true
-  limit: 1
+  category: "static"
+
+  # HTTP 接收器
+  # 用于接受 HTTP 连接的 Actor
+  # 选项:
+  # port: HTTP 服务器端口
+- name: "HTTP_ACCEPTOR"
+  unique: true
   category: "static"
 
   # 角色 actor
