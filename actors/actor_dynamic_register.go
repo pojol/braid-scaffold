@@ -2,11 +2,11 @@ package actors
 
 import (
 	"braid-scaffold/chains"
+	"braid-scaffold/template"
 	"context"
 
 	"github.com/pojol/braid/core"
 	"github.com/pojol/braid/core/actor"
-	"github.com/pojol/braid/def"
 )
 
 type dynamicRegisterActor struct {
@@ -16,7 +16,7 @@ type dynamicRegisterActor struct {
 
 func NewDynamicRegisterActor(p core.IActorBuilder) core.IActor {
 	return &dynamicRegisterActor{
-		Runtime: &actor.Runtime{Id: p.GetID(), Ty: def.ActorDynamicRegister, Sys: p.GetSystem()},
+		Runtime: &actor.Runtime{Id: p.GetID(), Ty: template.ACTOR_DYNAMIC_REGISTER, Sys: p.GetSystem()},
 		loader:  p.GetLoader(),
 	}
 }

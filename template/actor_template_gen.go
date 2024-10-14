@@ -12,26 +12,31 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-type ActorType struct {
-	Name    string            `yaml:"name"`
-	ID      string            `yaml:"id"`
-	Unique  bool              `yaml:"unique"`
-	Weight  int               `yaml:"weight"`
-	Limit   int               `yaml:"limit"`
-	Options map[string]string `yaml:"options,omitempty"`
+type ActorTemplate struct {
+	Name     string            `yaml:"name"`
+	ID       string            `yaml:"id"`
+	Unique   bool              `yaml:"unique"`
+	Category string            `yaml:"category"`
+	Options  map[string]string `yaml:"options,omitempty"`
 }
 
 type Config struct {
-	ActorTypes []ActorType `yaml:"actor_templates"`
+	ActorTypes []ActorTemplate `yaml:"actor_templates"`
 }
 
 func convertComment(comment string) string {
-	lines := strings.Split(comment, "\n")
+	lines := strings.Split(strings.TrimRight(comment, "\n"), "\n")
 	var converted []string
-	for _, line := range lines {
-		trimmed := strings.TrimSpace(line)
-		if trimmed != "" {
-			converted = append(converted, "// "+strings.TrimPrefix(trimmed, "#"))
+	for i, line := range lines {
+		trimmedLine := strings.TrimSpace(line)
+		if trimmedLine != "" {
+			// 保留原始缩进
+			indent := line[:len(line)-len(strings.TrimLeft(line, " "))]
+			trimmed := strings.TrimPrefix(trimmedLine, "#")
+			converted = append(converted, indent+"//"+trimmed)
+		} else if i < len(lines)-1 { // 只有在不是最后一行时才添加空行
+			// 完全空行或只包含空格的行，不添加任何内容
+			converted = append(converted, "")
 		}
 	}
 	return strings.Join(converted, "\n")
@@ -51,7 +56,7 @@ func main() {
 	inTopLevelComment := true
 
 	for _, line := range lines {
-		if strings.TrimSpace(line) == "actor_types:" {
+		if strings.TrimSpace(line) == "actor_templates:" {
 			inTopLevelComment = false
 			actorTypesContent.WriteString(line + "\n")
 			continue

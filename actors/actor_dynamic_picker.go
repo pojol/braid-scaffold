@@ -2,11 +2,11 @@ package actors
 
 import (
 	"braid-scaffold/chains"
+	"braid-scaffold/template"
 	"context"
 
 	"github.com/pojol/braid/core"
 	"github.com/pojol/braid/core/actor"
-	"github.com/pojol/braid/def"
 )
 
 type dynamicPickerActor struct {
@@ -15,7 +15,7 @@ type dynamicPickerActor struct {
 
 func NewDynamicPickerActor(p core.IActorBuilder) core.IActor {
 	return &dynamicPickerActor{
-		Runtime: &actor.Runtime{Id: p.GetID(), Ty: def.ActorDynamicPicker, Sys: p.GetSystem()},
+		Runtime: &actor.Runtime{Id: p.GetID(), Ty: template.ACTOR_DYNAMIC_PICKER, Sys: p.GetSystem()},
 	}
 }
 

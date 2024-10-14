@@ -11,11 +11,10 @@ import (
 //go:generate go run actor_template_gen.go
 
 type ActorConfig struct {
-	Name    string            `yaml:"name"`
-	Unique  bool              `yaml:"unique"`
-	Weight  int               `yaml:"weight"`
-	Limit   int               `yaml:"limit"`
-	Options map[string]string `yaml:"options,omitempty"`
+	Name     string            `yaml:"name"`
+	Unique   bool              `yaml:"unique"`
+	Category string            `yaml:"category"`
+	Options  map[string]string `yaml:"options,omitempty"`
 }
 
 type NodeConfig struct {
@@ -34,7 +33,7 @@ type RegisteredActorConfig struct {
 }
 
 type ActorTypes struct {
-	ActorTypes []ActorConfig `yaml:"actor_types"`
+	ActorTypes []ActorConfig `yaml:"actor_templates"`
 }
 
 func loadYAML(filename string, v interface{}) error {
@@ -82,11 +81,11 @@ func ParseConfigFromString(confData, actorTypesData string) (*NodeConfig, []Acto
 	}
 
 	// 解析节点配置
-	nodeID := os.Getenv("NODE_ID")
+	nodeID := os.Getenv("BRAID_NODE_ID")
 	if nodeID == "" {
 		nodeID = config.Node.ID
 	}
-	nodeWeight := os.Getenv("NODE_WEIGHT")
+	nodeWeight := os.Getenv("BRAID_NODE_WEIGHT")
 	if nodeWeight == "" {
 		nodeWeight = config.Node.Weight
 	}
@@ -99,11 +98,10 @@ func ParseConfigFromString(confData, actorTypesData string) (*NodeConfig, []Acto
 		}
 
 		actor := ActorConfig{
-			Name:    actorType.Name,
-			Unique:  actorType.Unique,
-			Weight:  actorType.Weight,
-			Limit:   actorType.Limit,
-			Options: registeredActor.Options, // 使用 conf.yml 中的 options
+			Name:     actorType.Name,
+			Unique:   actorType.Unique,
+			Category: actorType.Category,
+			Options:  registeredActor.Options, // 使用 conf.yml 中的 options
 		}
 		parsedActors = append(parsedActors, actor)
 	}

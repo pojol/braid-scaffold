@@ -15,26 +15,27 @@ import (
 // This is a demonstration service. After users pull it, they can copy the code for use in their own services and then delete it.
 
 func main() {
-	slog, _ := log.NewServerLogger("test")
+	slog, _ := log.NewServerLogger("demo-1")
 	log.SetSLog(slog)
 	defer log.Sync()
 
 	// mock
-	os.Setenv("NODE_ID", "http-1")
+	os.Setenv("NODE_ID", "demo-1")
 
 	// mock redis
 	redis.BuildClientWithOption(redis.WithAddr("redis://127.0.0.1:6379/0"))
 
-	nodeCfg, actorTypes, err := template.ParseConfig("conf.yml", "../../template/actor_template.yml")
+	nodeCfg, actorTypes, err := template.ParseConfig("../../template/demo-1.yml", "../../template/actor_template.yml")
 	if err != nil {
 		panic(err)
 	}
 
 	factory := actors.BuildActorFactory(actorTypes)
+	loader := actors.BuildDefaultActorLoader(factory)
 
 	nod := node.BuildProcessWithOption(
 		core.WithSystem(
-			node.BuildSystemWithOption(nodeCfg.ID, factory),
+			node.BuildSystemWithOption(nodeCfg.ID, loader),
 		),
 	)
 

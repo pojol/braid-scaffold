@@ -1,89 +1,51 @@
 # Actor 类型模版定义
 
 # 配置字段说明：
-# name: Actor 的类型名称，用于在代码中识别和创建 Actor
+# name: Actor 的模版名称，用于在代码中识别和创建 Actor （注: 模版并不是唯一的，可以在 conf.yml 中定义多个
 # id: Actor 的唯一标识符，可以包含 {nodeid} 占位符，将被替换为实际的节点 ID
+# category: Actor 类型
+  # core - 表示基础服务，每个节点必须装载；
+  # static - 静态actor node启动时通过 node.yml 中申明进行装载
+  # dynamic - 动态 actor 运行时装载，用户自行通过 picker 装载
 # unique: 布尔值，表示该 Actor类型 在节点中是否唯一
-# weight: 整数，表示 Actor 的权重，用于负载均衡
-# limit: 整数，表示 Actor 的全局数量限制，0 表示无限制
-# options: 可选的 Actor 特定配置项
-
-# weight 我们可以默认设计一个权重计算方法
-# 比如 2c4g 的pod， 可以等于 2x4x1000 = 8000
-# 在这个基础上，我们可以通过压测数据，去规划调整 actor 的权重值
+# options: 可选的 Actor 配置项（在 node.yml 中定义
+  # 通用可选项
+  # weight - 整数，表示 Actor 的权重，用于负载均衡
+  # limit - 整数，表示 Actor 的全局数量限制，0 表示无限制
 
 actor_templates:
   # WebSocket 接收器
   # 用于接受 WebSocket 连接的 Actor
   # 选项:
-  #   - port: WebSocket 服务器端口
+  # port: WebSocket 服务器端口
 - name: "WEBSOCKET_ACCEPTOR"
   unique: true
   limit: 1
   category: "static"
-  # weight: 800
-  # options 部分被移除，将在 node conf.yml 中定义
-  # - port 对外端口号
-  # like:
-  #options:
-  #  port: "8008"
 
-- name: "HTTP_ACCEPTOR"
-  unique: true
-  limit: 1
-  category: "static"
-  # - port 对外端口号
-
-  # 登录处理
-  # 处理用户登录请求的 Actor
-- name: "LOGIN"
-  unique: false
-  limit: 2
-  category: "static"
-
+  # 角色 actor
 - name: "USER"
   unique: false
-  limit: 10000
   category: "dynamic"
 
   # 动态选择器
-  # 用于动态选择其他 Actor 的 Actor
+  # 用于将注册 actor 的行为通过负载均衡的方式调配给不同的 register
+  # picker 可以分布在不同的节点上
+  # 性能:
+  #   I/O 复杂度: O(1)
+  #   时间复杂度: O(n log n)，其中 n 是节点数量
 - name: "DYNAMIC_PICKER"
   unique: true
-  weight: 80
-  limit: 10
+  category: "dynamic"
 
   # 动态注册器
-  # 用于动态注册其他 Actor 的 Actor
+  # 用于动态的将 actor 注册到本节点中
 - name: "DYNAMIC_REGISTER"
   unique: true
-  weight: 80
-  limit: 0
-
-# actor 控制
-- name: "CONTROL"
-  unique : true
-  limit : 0
   category: "core"
 
-  # 全局聊天
-  # 处理全局聊天消息的 Actor
-  # 选项:
-  #   - channel: 聊天频道名称
-- name: "GLOBAL_CHAT"
-  unique: false
-  weight: 3000
-  limit: 1
-
-# 私聊
-- name: "PRIVATE_CHAT"
-  unique: false
-  weight: 40
-  limit: 10000
-
-  # 聊天路由
-  # 用于路由聊天消息的 Actor
-- name: "ROUTER_CHAT"
-  unique: true
-  weight: 80
-  limit: 1
+  # actor 控制器
+  # 主要提供当前节点中的 actor 的各种管理操作（移除，迁移 ...
+- name: "CONTROL"
+  unique : true
+  category: "core"

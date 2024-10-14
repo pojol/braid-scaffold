@@ -1,9 +1,10 @@
 package chains
 
 import (
+	"braid-scaffold/template"
+
 	"github.com/pojol/braid/core"
 	"github.com/pojol/braid/core/actor"
-	"github.com/pojol/braid/def"
 	"github.com/pojol/braid/router"
 )
 
@@ -21,7 +22,7 @@ func MakeDynamicPick(ctx core.ActorContext) core.IChain {
 			}
 
 			// dispatcher to picker node
-			return ctx.Call(router.Target{ID: nodeaddr.Node + "_" + "register", Ty: def.ActorDynamicRegister, Ev: def.EvDynamicRegister}, mw)
+			return ctx.Call(router.Target{ID: nodeaddr.Node + "_" + "register", Ty: template.ACTOR_DYNAMIC_REGISTER, Ev: DynamicRegister}, mw)
 		},
 	}
 }
@@ -46,7 +47,7 @@ func MakeDynamicRegister(ctx core.ActorContext) core.IChain {
 				return err
 			}
 
-			mw.Req.Header.PrevActorType = def.ActorDynamicRegister
+			mw.Req.Header.PrevActorType = template.ACTOR_DYNAMIC_REGISTER
 
 			actor.Init(mw.Ctx)
 			go actor.Update()

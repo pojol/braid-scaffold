@@ -30,19 +30,17 @@ func BuildActorFactory(actorcfg []template.ActorConfig) *MockActorFactory {
 			// todo ...
 		}
 
-		factory.bind(v.Name, v.Unique, v.Weight, v.Limit, create)
+		factory.bind(v.Name, v.Unique, create)
 	}
 
 	return factory
 }
 
 // Bind associates an actor type with its constructor function
-func (factory *MockActorFactory) bind(actorType string, unique bool, weight int, limit int, f core.CreateFunc) {
+func (factory *MockActorFactory) bind(actorType string, unique bool, f core.CreateFunc) {
 	factory.constructors[actorType] = &core.ActorConstructor{
-		NodeUnique:          unique,
-		Weight:              weight,
-		Constructor:         f,
-		GlobalQuantityLimit: limit,
+		NodeUnique:  unique,
+		Constructor: f,
 	}
 }
 

@@ -2,11 +2,11 @@ package actors
 
 import (
 	"braid-scaffold/chains"
+	"braid-scaffold/template"
 	"context"
 
 	"github.com/pojol/braid/core"
 	"github.com/pojol/braid/core/actor"
-	"github.com/pojol/braid/def"
 )
 
 type controlActor struct {
@@ -15,7 +15,7 @@ type controlActor struct {
 
 func NewControlActor(p core.IActorBuilder) core.IActor {
 	return &controlActor{
-		Runtime: &actor.Runtime{Id: p.GetID(), Ty: def.ActorControl, Sys: p.GetSystem()},
+		Runtime: &actor.Runtime{Id: p.GetID(), Ty: template.ACTOR_CONTROL, Sys: p.GetSystem()},
 	}
 }
 
