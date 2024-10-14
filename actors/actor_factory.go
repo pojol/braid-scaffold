@@ -3,7 +3,6 @@ package actors
 import (
 	"braid-scaffold/template"
 
-	"github.com/pojol/braid/actors"
 	"github.com/pojol/braid/core"
 )
 
@@ -23,11 +22,11 @@ func BuildActorFactory(actorcfg []template.ActorConfig) *MockActorFactory {
 
 		switch v.Name {
 		case template.ACTOR_DYNAMIC_PICKER:
-			create = actors.NewDynamicPickerActor
+			create = NewDynamicPickerActor
 		case template.ACTOR_DYNAMIC_REGISTER:
-			create = actors.NewDynamicRegisterActor
+			create = NewDynamicRegisterActor
 		case template.ACTOR_CONTROL:
-			create = actors.NewControlActor
+			create = NewControlActor
 			// todo ...
 		}
 
