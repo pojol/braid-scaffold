@@ -19,21 +19,15 @@ actor_templates:
   # 选项:
   # port: WebSocket 服务器端口
 - name: "WEBSOCKET_ACCEPTOR"
-  unique: true
-  category: "static"
 
   # HTTP 接收器
   # 用于接受 HTTP 连接的 Actor
   # 选项:
   # port: HTTP 服务器端口
 - name: "HTTP_ACCEPTOR"
-  unique: true
-  category: "static"
 
   # 角色 actor
 - name: "USER"
-  unique: false
-  category: "dynamic"
 
   # 动态选择器
   # 用于将注册 actor 的行为通过负载均衡的方式调配给不同的 register
@@ -42,17 +36,11 @@ actor_templates:
   #   I/O 复杂度: O(1)
   #   时间复杂度: O(n log n)，其中 n 是节点数量
 - name: "DYNAMIC_PICKER"
-  unique: true
-  category: "dynamic"
 
   # 动态注册器
   # 用于动态的将 actor 注册到本节点中
 - name: "DYNAMIC_REGISTER"
-  unique: true
-  category: "core"
 
   # actor 控制器
   # 主要提供当前节点中的 actor 的各种管理操作（移除，迁移 ...
 - name: "CONTROL"
-  unique : true
-  category: "core"

@@ -42,7 +42,7 @@ func MakeDynamicRegister(ctx core.ActorContext) core.IChain {
 				builder.WithOpt(k, v)
 			}
 
-			actor, err := builder.Build()
+			actor, err := builder.Register()
 			if err != nil {
 				return err
 			}

@@ -27,7 +27,7 @@ func NewHttpAcceptorActor(p core.IActorBuilder) core.IActor {
 	return &httpAcceptorActor{
 		Runtime: &actor.Runtime{Id: p.GetID(), Ty: p.GetType(), Sys: p.GetSystem()},
 		echoptr: echo.New(),
-		Port:    p.GetOpt("port").(string),
+		Port:    p.GetOpt("port"),
 	}
 }
 

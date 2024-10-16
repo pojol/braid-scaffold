@@ -8,12 +8,14 @@ import (
 
 // MockActorFactory is a factory for creating actors
 type MockActorFactory struct {
+	actors       []template.RegisteredActorConfig
 	constructors map[string]*core.ActorConstructor
 }
 
 // NewActorFactory create new actor factory
-func BuildActorFactory(actorcfg []template.ActorConfig) *MockActorFactory {
+func BuildActorFactory(actorcfg []template.RegisteredActorConfig) *MockActorFactory {
 	factory := &MockActorFactory{
+		actors:       actorcfg,
 		constructors: make(map[string]*core.ActorConstructor),
 	}
 
@@ -32,18 +34,18 @@ func BuildActorFactory(actorcfg []template.ActorConfig) *MockActorFactory {
 			// todo ...
 		}
 
-		factory.bind(v.Name, v.Unique, create)
+		factory.constructors[v.Name] = &core.ActorConstructor{
+			Constructor:         create,
+			ID:                  v.ID,
+			Name:                v.Name,
+			Weight:              v.Weight,
+			NodeUnique:          v.Unique,
+			GlobalQuantityLimit: v.Limit,
+			Options:             v.Options,
+		}
 	}
 
 	return factory
-}
-
-// Bind associates an actor type with its constructor function
-func (factory *MockActorFactory) bind(actorType string, unique bool, f core.CreateFunc) {
-	factory.constructors[actorType] = &core.ActorConstructor{
-		NodeUnique:  unique,
-		Constructor: f,
-	}
 }
 
 func (factory *MockActorFactory) Get(actorType string) *core.ActorConstructor {
@@ -52,4 +54,12 @@ func (factory *MockActorFactory) Get(actorType string) *core.ActorConstructor {
 	}
 
 	return nil
+}
+
+func (factory *MockActorFactory) GetActors() []*core.ActorConstructor {
+	actors := []*core.ActorConstructor{}
+	for _, v := range factory.constructors {
+		actors = append(actors, v)
+	}
+	return actors
 }
