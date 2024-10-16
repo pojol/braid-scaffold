@@ -7,7 +7,7 @@ toolchain go1.22.8
 require (
 	github.com/gogo/protobuf v1.3.2
 	github.com/labstack/echo/v4 v4.12.0
-	github.com/pojol/braid v0.0.0-20241014100358-e449cbce72a7
+	github.com/pojol/braid v0.0.0-20241016152022-b6d99ae23369
 	gopkg.in/yaml.v2 v2.4.0
 )
 
