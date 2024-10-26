@@ -41,6 +41,7 @@ func BuildActorFactory(actorcfg []template.RegisteredActorConfig) *MockActorFact
 			Weight:              v.Weight,
 			NodeUnique:          v.Unique,
 			GlobalQuantityLimit: v.Limit,
+			Dynamic:             v.Dynamic,
 			Options:             v.Options,
 		}
 	}

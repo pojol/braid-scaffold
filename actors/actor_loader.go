@@ -70,6 +70,10 @@ func (al *DefaultActorLoader) AssignToNode(node core.INode) {
 
 	for _, actor := range actors {
 
+		if actor.Dynamic {
+			continue
+		}
+
 		builder := al.Builder(actor.Name, node.System())
 		if actor.ID == "" {
 			actor.ID = actor.Name

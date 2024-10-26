@@ -33,6 +33,7 @@ type RegisteredActorConfig struct {
 	Weight  int               `yaml:"weight"`
 	Unique  bool              `yaml:"unique"`
 	Limit   int               `yaml:"limit"`
+	Dynamic bool              `yaml:"dynamic"`
 	Options map[string]string `yaml:"options,omitempty"`
 }
 
