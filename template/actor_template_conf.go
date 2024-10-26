@@ -18,6 +18,7 @@ type ActorTemplateConfig struct {
 type NodeConfig struct {
 	ID     string                  `yaml:"id"`
 	Weight string                  `yaml:"weight"`
+	Ip     string                  `yaml:"ip"`
 	Port   string                  `yaml:"port"`
 	Actors []RegisteredActorConfig `yaml:"actors"`
 }
@@ -103,6 +104,7 @@ func ParseConfigFromString(confData, actorTypesData string) (*NodeConfig, error)
 	nodeConfig := &NodeConfig{
 		ID:     config.Node.ID,
 		Weight: config.Node.Weight,
+		Ip:     config.Node.Ip,
 		Port:   config.Node.Port,
 		Actors: config.Node.Actors,
 	}

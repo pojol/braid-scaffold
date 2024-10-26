@@ -3,6 +3,7 @@ node:
   # 如果提供 {} 占位符则自动通过环境变量获取，也可以手动传入
   id: "{BRAID_NODE_ID}"         # 节点唯一标识符  
   weight: "{BRAID_NODE_WEIGHT}" # 节点总权重值
+  ip: "127.0.0.1"               # 节点ip BRAID_NODE_IP
   port: "{BRAID_NODE_PORT}"     # 节点rpc端口号
   
   # Actor 配置列表（在模版中选择需要装载到这个节点的 actor

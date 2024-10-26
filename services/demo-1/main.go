@@ -47,12 +47,11 @@ func main() {
 	loader := actors.BuildDefaultActorLoader(factory)
 
 	nod := node.BuildProcessWithOption(
-		core.WithNodeID(nodeCfg.ID),
-		core.WithWeight(realNodeWeight),
-		core.WithLoader(loader),
-		core.WithSystem(
-			node.BuildSystemWithOption(nodeCfg.ID, loader, node.SystemWithAcceptor(realNodePort)),
-		),
+		core.NodeWithID(nodeCfg.ID),
+		core.NodeWithWeight(realNodeWeight),
+		core.NodeWithLoader(loader),
+		core.NodeWithID(nodeCfg.Ip),
+		core.NodeWithPort(realNodePort),
 	)
 
 	err = nod.Init()
