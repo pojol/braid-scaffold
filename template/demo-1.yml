@@ -14,3 +14,17 @@ node:
       weight: 100
       options:
         port: "8008"
+
+    ######## base
+    - name : "DYNAMIC_PICKER"
+      id : "dynamic_picker"
+      unique : true
+      weight : 100
+    - name : "DYNAMIC_REGISTER"
+      id : "dynamic_register"
+      unique : true
+      weight : 200
+    - name : "CONTROL"
+      id : "control"
+      unique : true
+      weight : 100

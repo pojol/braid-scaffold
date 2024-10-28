@@ -50,6 +50,7 @@ func main() {
 		core.NodeWithID(nodeCfg.ID),
 		core.NodeWithWeight(realNodeWeight),
 		core.NodeWithLoader(loader),
+		core.NodeWithFactory(factory),
 		core.NodeWithID(nodeCfg.Ip),
 		core.NodeWithPort(realNodePort),
 	)
