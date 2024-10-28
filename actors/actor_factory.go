@@ -42,7 +42,12 @@ func BuildActorFactory(actorcfg []template.RegisteredActorConfig) *MockActorFact
 			NodeUnique:          v.Unique,
 			GlobalQuantityLimit: v.Limit,
 			Dynamic:             v.Dynamic,
-			Options:             v.Options,
+		}
+
+		if len(v.Options) > 0 {
+			factory.constructors[v.Name].Options = v.Options
+		} else {
+			factory.constructors[v.Name].Options = make(map[string]string)
 		}
 	}
 
