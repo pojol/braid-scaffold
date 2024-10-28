@@ -26,6 +26,8 @@ actor_templates:
   # port: HTTP 服务器端口
 - name: "HTTP_ACCEPTOR"
 
+- name: "LOGIN"
+
   # 角色 actor
 - name: "USER"
 

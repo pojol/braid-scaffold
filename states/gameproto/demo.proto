@@ -3,3 +3,26 @@ package gameproto;
 
 import "commproto/comm.proto";
 
+message MsgHeader {
+    string Event = 1;
+    string Token = 2;
+    string ErrMsg = 3;
+    int32 ErrCode = 4;
+}
+
+message GuestLoginReq {
+    string Acc = 1;
+}
+
+message GuestLoginRes {
+    string Acc = 1;
+    string Token = 2;
+}
+
+message HelloBraidReq {
+    string Msg = 1;
+}
+
+message HelloBraidRes {
+    string Msg = 1;
+}

@@ -30,6 +30,8 @@ const (
   // port: HTTP 服务器端口
     ACTOR_HTTP_ACCEPTOR = "HTTP_ACCEPTOR"
 
+    ACTOR_LOGIN = "LOGIN"
+
   // 角色 actor
     ACTOR_USER = "USER"
 

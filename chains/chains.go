@@ -21,3 +21,11 @@ const (
 	// EvHttpHello is used to handle http requests
 	HttpHello = "braid.chains.http_hello"
 )
+
+const (
+	SocketNotify = "braid.socket.notify"
+)
+
+const (
+	API_GuestLogin = "guest_login"
+)
