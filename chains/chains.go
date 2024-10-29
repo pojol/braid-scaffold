@@ -23,7 +23,7 @@ const (
 )
 
 const (
-	SocketNotify = "braid.socket.notify"
+	SocketResponse = "braid.socket.response"
 )
 
 const (

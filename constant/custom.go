@@ -1,6 +1,8 @@
 package constant
 
 const (
-	CustomUserActor = "user_actor"
-	CustomGateActor = "gate_actor"
+	CustomErrCode = "error_code"
+	CustomErrMsg  = "error_msg"
+
+	CustomUserID = "user_id"
 )

@@ -70,11 +70,17 @@ func (a *websocketAcceptorActor) Init(ctx context.Context) {
 
 	a.echoptr.GET("/ws", a.received)
 
-	a.RegisterEvent(chains.SocketNotify, func(ctx core.ActorContext) core.IChain {
+	a.RegisterEvent(chains.SocketResponse, func(ctx core.ActorContext) core.IChain {
 		return &actor.DefaultChain{
 			Handler: func(mw *router.MsgWrapper) error {
-				userid := mw.Res.Header.Custom[constant.CustomUserActor]
-				a.sessionMgr.GetSessionByUID(userid).EnqueueWrite(mw)
+				userid, ok := mw.Res.Header.Custom[constant.CustomUserID]
+				if ok {
+					session := a.sessionMgr.GetSessionByUID(userid)
+					if session != nil {
+						session.EnqueueWrite(mw)
+					}
+				}
+
 				return nil
 			},
 		}
@@ -131,11 +137,7 @@ func (a *websocketAcceptorActor) handleMessage(ctx context.Context, header *game
 	var err error
 
 	sendMsg := router.NewMsgWrap(ctx).
-		WithReqHeader(&router.Header{
-			Custom: map[string]string{
-				constant.CustomGateActor: a.Id,
-			},
-		}).
+		WithGateID(a.Id).
 		WithReqBody(msg[2+binary.LittleEndian.Uint16(msg[:2]):]).
 		Build()
 

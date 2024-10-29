@@ -142,7 +142,7 @@ func (s *Session) writeLoop() {
 			buf.Reset() // Clear the buffer for reuse
 
 			resHeader := gameproto.MsgHeader{
-				Event: realmsg.Res.Header.Event,
+				Event: realmsg.Req.Header.Event,
 				Token: realmsg.Req.Header.Token,
 			}
 
