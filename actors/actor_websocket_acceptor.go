@@ -115,16 +115,9 @@ func (a *websocketAcceptorActor) received(c echo.Context) error {
 			continue
 		}
 
-		// Create a context with a timeout
-		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-		defer cancel()
-
-		func() {
-			defer cancel()
-			if err := a.handleMessage(ctx, header, msg, ws); err != nil {
-				log.WarnF("handle message error: %v", err)
-			}
-		}()
+		if err := a.handleMessage(context.Background(), header, msg, ws); err != nil {
+			log.WarnF("handle message error: %v", err)
+		}
 
 	}
 
