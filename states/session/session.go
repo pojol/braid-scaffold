@@ -2,6 +2,7 @@ package session
 
 import (
 	"braid-scaffold/chains"
+	"braid-scaffold/constant"
 	"braid-scaffold/states/gameproto"
 	"braid-scaffold/template"
 	"bytes"
@@ -61,6 +62,7 @@ func NewSession(conn *websocket.Conn, handler SendCallback, m *Mgr) *Session {
 		readQueue:  unbounded.NewUnbounded(),
 		writeQueue: unbounded.NewUnbounded(),
 		closeChan:  make(chan struct{}),
+		callback:   handler,
 		state:      StateConnected,
 		createTime: time.Now(),
 	}
@@ -98,30 +100,35 @@ func (s *Session) readLoop() {
 			return
 		case msg := <-s.readQueue.Get():
 			realmsg := msg.(*router.MsgWrapper)
+			s.readQueue.Load()
+
 			var actorid, actorty string
+
+			if realmsg.Req.Header.Event == "" {
+				log.DebugF("session %v read empty event message", s.sid)
+				return
+			}
 
 			switch realmsg.Req.Header.Event {
 			case chains.API_GuestLogin:
 				actorid = def.SymbolLocalFirst
 				actorty = template.ACTOR_LOGIN
 			default:
-				userID, err := token.Parse(realmsg.Req.Header.Token)
-				if err != nil {
-					log.WarnF("recv user message parse token %v err %v", realmsg.Req.Header.Token, err.Error())
-					s.readQueue.Load()
-					return
-				}
-				actorid = userID
+				actorid = s.uid
 				actorty = template.ACTOR_USER
 			}
 
-			s.callback(router.Target{
+			realmsg.Req.Header.Custom[constant.CustomSessionID] = s.sid
+
+			err := s.callback(router.Target{
 				ID: actorid,
 				Ty: actorty,
 				Ev: realmsg.Req.Header.Event,
 			}, realmsg)
 
-			s.readQueue.Load()
+			if err != nil {
+				log.WarnF("session %v handle message %v err %v", s.sid, realmsg.Req.Header.Event, err.Error())
+			}
 		}
 	}
 }
@@ -136,14 +143,15 @@ func (s *Session) writeLoop() {
 			return
 		case msg := <-s.writeQueue.Get():
 			realmsg := msg.(*router.MsgWrapper)
+			s.writeQueue.Load()
 
 			// Get a buffer from the pool
 			buf := bufferPool.Get().(*bytes.Buffer)
 			buf.Reset() // Clear the buffer for reuse
 
 			resHeader := gameproto.MsgHeader{
-				Event: realmsg.Req.Header.Event,
-				Token: realmsg.Req.Header.Token,
+				Event: realmsg.Res.Header.Event,
+				Token: realmsg.Res.Header.Token,
 			}
 
 			if resHeader.Event == chains.API_GuestLogin { // 并且没有错误
@@ -172,8 +180,6 @@ func (s *Session) writeLoop() {
 
 			// Put the buffer back in the pool immediately after use
 			bufferPool.Put(buf)
-
-			s.writeQueue.Load()
 		}
 	}
 }

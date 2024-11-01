@@ -33,13 +33,13 @@ type websocketAcceptorActor struct {
 }
 
 var (
-	upgrader = websocket.Upgrader{}
-)
-
-var (
 	ErrInvalidMessageFormat = errors.New("invalid message format")
 	ErrInvalidToken         = errors.New("invalid token")
 	ErrSessionNotFound      = errors.New("session not found")
+)
+
+var (
+	upgrader = websocket.Upgrader{}
 )
 
 func NewWSAcceptorActor(p core.IActorBuilder) core.IActor {
@@ -73,9 +73,10 @@ func (a *websocketAcceptorActor) Init(ctx context.Context) {
 	a.RegisterEvent(chains.SocketResponse, func(ctx core.ActorContext) core.IChain {
 		return &actor.DefaultChain{
 			Handler: func(mw *router.MsgWrapper) error {
-				userid, ok := mw.Res.Header.Custom[constant.CustomUserID]
+
+				sid, ok := mw.Res.Header.Custom[constant.CustomSessionID]
 				if ok {
-					session := a.sessionMgr.GetSessionByUID(userid)
+					session := a.sessionMgr.GetSessionByID(sid)
 					if session != nil {
 						session.EnqueueWrite(mw)
 					}
@@ -130,6 +131,10 @@ func (a *websocketAcceptorActor) handleMessage(ctx context.Context, header *game
 	var err error
 
 	sendMsg := router.NewMsgWrap(ctx).
+		WithReqHeader(&router.Header{
+			Token: header.Token,
+			Event: header.Event,
+		}).
 		WithGateID(a.Id).
 		WithReqBody(msg[2+binary.LittleEndian.Uint16(msg[:2]):]).
 		Build()
@@ -197,6 +202,8 @@ func (a *websocketAcceptorActor) Exit() {
 	if err := a.echoptr.Shutdown(ctx); err != nil {
 		log.ErrorF("failed to shutdown server: %v", err)
 	}
+
+	a.sessionMgr.CloseAll()
 
 	a.Runtime.Exit()
 }
