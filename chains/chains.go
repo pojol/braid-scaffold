@@ -23,7 +23,8 @@ const (
 )
 
 const (
-	SocketResponse = "braid.socket.response"
+	ClientResponse  = "braid.client.response"
+	ClientBroadcast = "braid.client.broadcast"
 )
 
 const (

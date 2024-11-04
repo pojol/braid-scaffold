@@ -2,6 +2,7 @@ package actors
 
 import (
 	"braid-scaffold/chains"
+	"braid-scaffold/constant"
 	"braid-scaffold/template"
 	"context"
 	"fmt"
@@ -29,8 +30,8 @@ func (al *DefaultActorLoader) Pick(builder core.IActorBuilder) error {
 		customOptions[key] = fmt.Sprint(value)
 	}
 
-	customOptions["actor_id"] = builder.GetID()
-	customOptions["actor_ty"] = builder.GetType()
+	customOptions[constant.CustomActorID] = builder.GetID()
+	customOptions[constant.CustomActorType] = builder.GetType()
 
 	go func() {
 		err := builder.GetSystem().Call(router.Target{

@@ -9,7 +9,6 @@ node:
   # Actor 配置列表（在模版中选择需要装载到这个节点的 actor
   actors:
     - name: "HTTP_ACCEPTOR"
-      id : "http_acceptor"
       unique: true
       weight: 100
       options:
@@ -17,14 +16,11 @@ node:
 
     ######## base
     - name : "DYNAMIC_PICKER"
-      id : "dynamic_picker"
       unique : true
       weight : 100
     - name : "DYNAMIC_REGISTER"
-      id : "dynamic_register"
       unique : true
       weight : 200
     - name : "CONTROL"
-      id : "control"
       unique : true
       weight : 100

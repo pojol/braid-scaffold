@@ -154,7 +154,7 @@ func (s *Session) writeLoop() {
 				Token: realmsg.Res.Header.Token,
 			}
 
-			if resHeader.Event == chains.API_GuestLogin { // 并且没有错误
+			if resHeader.Event == chains.API_GuestLogin {
 				userID, err := token.Parse(resHeader.Token)
 				if err != nil {
 					log.WarnF("bind uid, but token %v parse err %v", resHeader.Token, err)

@@ -1,6 +1,7 @@
 package chains
 
 import (
+	"braid-scaffold/constant"
 	"braid-scaffold/template"
 
 	"github.com/pojol/braid/core"
@@ -13,7 +14,7 @@ func MakeDynamicPick(ctx core.ActorContext) core.IChain {
 
 		Handler: func(mw *router.MsgWrapper) error {
 
-			actor_ty := mw.Req.Header.Custom["actor_ty"]
+			actor_ty := mw.GetReqCustomStr(constant.CustomActorType)
 
 			// Select a node with low weight and relatively fewer registered actors of this type
 			nodeaddr, err := ctx.AddressBook().GetLowWeightNodeForActor(mw.Ctx, actor_ty)
@@ -22,7 +23,7 @@ func MakeDynamicPick(ctx core.ActorContext) core.IChain {
 			}
 
 			// dispatcher to picker node
-			return ctx.Call(router.Target{ID: nodeaddr.Node + "_" + "register", Ty: template.ACTOR_DYNAMIC_REGISTER, Ev: DynamicRegister}, mw)
+			return ctx.Call(router.Target{ID: nodeaddr.Node + "_" + template.ACTOR_DYNAMIC_REGISTER, Ty: template.ACTOR_DYNAMIC_REGISTER, Ev: DynamicRegister}, mw)
 		},
 	}
 }
@@ -32,8 +33,8 @@ func MakeDynamicRegister(ctx core.ActorContext) core.IChain {
 
 		Handler: func(mw *router.MsgWrapper) error {
 
-			actor_ty := mw.Req.Header.Custom["actor_ty"]
-			actor_id := mw.Req.Header.Custom["actor_id"]
+			actor_ty := mw.GetReqCustomStr(constant.CustomActorType)
+			actor_id := mw.GetReqCustomStr(constant.CustomActorID)
 
 			builder := ctx.Loader(actor_ty)
 			builder.WithID(actor_id)

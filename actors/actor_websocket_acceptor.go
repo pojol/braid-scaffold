@@ -70,7 +70,7 @@ func (a *websocketAcceptorActor) Init(ctx context.Context) {
 
 	a.echoptr.GET("/ws", a.received)
 
-	a.RegisterEvent(chains.SocketResponse, func(ctx core.ActorContext) core.IChain {
+	a.RegisterEvent(chains.ClientResponse, func(ctx core.ActorContext) core.IChain {
 		return &actor.DefaultChain{
 			Handler: func(mw *router.MsgWrapper) error {
 
@@ -86,13 +86,27 @@ func (a *websocketAcceptorActor) Init(ctx context.Context) {
 			},
 		}
 	})
+	a.RegisterEvent(chains.ClientBroadcast, func(ctx core.ActorContext) core.IChain {
+		return &actor.DefaultChain{
+			Handler: func(mw *router.MsgWrapper) error {
+				uid, ok := mw.Res.Header.Custom[constant.CustomUserID]
+				if ok {
+					session := a.sessionMgr.GetSessionByUID(uid)
+					if session != nil {
+						session.EnqueueWrite(mw)
+					}
+				}
+				return nil
+			},
+		}
+	})
 
 	a.RegisterTimer(1000, 1000*60*10, func(i interface{}) error {
 		a.sessionMgr.CleanupExpiredSessions(time.Minute * 10)
 		return nil
 	}, nil)
 
-	fmt.Println("init websocket succ")
+	log.InfoF("init websocket actor succ")
 }
 
 func (a *websocketAcceptorActor) received(c echo.Context) error {
@@ -106,7 +120,7 @@ func (a *websocketAcceptorActor) received(c echo.Context) error {
 		// Read
 		_, msg, err := ws.ReadMessage()
 		if err != nil {
-			fmt.Println("read msg err", err.Error())
+			log.DebugF("read msg err %v", err.Error())
 			break
 		}
 

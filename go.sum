@@ -93,6 +93,8 @@ github.com/pojol/braid v0.0.0-20241028014820-0245c2cefb01 h1:XQf3F5KPAjfUn/iS28A
 github.com/pojol/braid v0.0.0-20241028014820-0245c2cefb01/go.mod h1:ykr5IyPOLNcFxNuZmqFGu7aLoXDe/30VcFLgqOg/5gM=
 github.com/pojol/braid v0.0.0-20241029030922-6a8158a07dde h1:cWvWlMdEgP7kOyy/muctVDjhV+SemXgFcwb5RiEGFjE=
 github.com/pojol/braid v0.0.0-20241029030922-6a8158a07dde/go.mod h1:ykr5IyPOLNcFxNuZmqFGu7aLoXDe/30VcFLgqOg/5gM=
+github.com/pojol/braid v0.0.0-20241101140702-edda7aca27d7 h1:t4xT69kt0kIQt4AjXoKlPNz4Eot4Z64ubMFCrRUJNFE=
+github.com/pojol/braid v0.0.0-20241101140702-edda7aca27d7/go.mod h1:ykr5IyPOLNcFxNuZmqFGu7aLoXDe/30VcFLgqOg/5gM=
 github.com/prometheus/client_model v0.0.0-20190812154241-14fe0d1b01d4/go.mod h1:xMI15A0UPsDsEKsMN9yxemIoYk6Tm2C1GtYGdfGttqA=
 github.com/redis/go-redis/v9 v9.6.1 h1:HHDteefn6ZkTtY5fGUE8tj8uy85AHk6zP7CpzIAM0y4=
 github.com/redis/go-redis/v9 v9.6.1/go.mod h1:0C0c6ycQsdpVNQpxb1njEQIqkx5UcsM8FJCQLgE9+RA=

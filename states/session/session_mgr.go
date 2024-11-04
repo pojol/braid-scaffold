@@ -12,8 +12,7 @@ import (
 type Mgr struct {
 	sync.RWMutex
 	sessions    map[string]*Session // sessionID -> Session
-	uidSessions map[string]string   // uid -> sessionID（可选，用于快速查找）
-
+	uidSessions map[string]string
 }
 
 func NewSessionMgr() *Mgr {

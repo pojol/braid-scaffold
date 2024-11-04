@@ -1,6 +1,8 @@
 package chains
 
 import (
+	"braid-scaffold/constant"
+
 	"github.com/pojol/braid/core"
 	"github.com/pojol/braid/core/actor"
 	"github.com/pojol/braid/lib/log"
@@ -11,7 +13,7 @@ func MakeUnregisterActor(ctx core.ActorContext) core.IChain {
 	return &actor.DefaultChain{
 		Handler: func(mw *router.MsgWrapper) error {
 
-			actor_id := mw.Req.Header.Custom["actor_id"]
+			actor_id := mw.GetReqCustomStr(constant.CustomActorID)
 
 			err := ctx.Unregister(actor_id)
 			if err != nil {
