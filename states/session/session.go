@@ -6,6 +6,7 @@ import (
 	"braid-scaffold/states/gameproto"
 	"braid-scaffold/template"
 	"bytes"
+	"context"
 	"encoding/binary"
 	"sync"
 	"sync/atomic"
@@ -40,18 +41,23 @@ type Session struct {
 	writeQueue *unbounded.Unbounded
 	readQueue  *unbounded.Unbounded
 
-	closeChan chan struct{} // 用于关闭的信号通道
-	closeOnce sync.Once     // 确保只关闭一次
+	closeChan chan struct{} // Channel for close signal
+	closeOnce sync.Once     // Ensure close only once
 
-	wg         sync.WaitGroup // 等待所有 goroutine 结束
-	state      int32          // 会话状态（atomic）
+	wg         sync.WaitGroup // Wait for all goroutines to finish
+	state      int32          // session state（atomic）
 	createTime time.Time
+
+	lastHeartbeat time.Time
 }
 
 const (
-	StateConnected  = iota // 已连接
-	StateAuthorized        // 已认证
-	StateClosed            // 已关闭
+	StateConnected  = iota // Connected
+	StateAuthorized        // Authorized
+	StateClosed            // Closed
+
+	HeartbeatInterval = 30 * time.Second
+	HeartbeatTimeout  = 90 * time.Second
 )
 
 func NewSession(conn *websocket.Conn, handler SendCallback, m *Mgr) *Session {
@@ -67,10 +73,11 @@ func NewSession(conn *websocket.Conn, handler SendCallback, m *Mgr) *Session {
 		createTime: time.Now(),
 	}
 
-	s.wg.Add(2) // 为读写 goroutine 添加计数
+	s.wg.Add(3)
 
 	go s.readLoop()
 	go s.writeLoop()
+	go s.heartbeatLoop()
 
 	return s
 }
@@ -80,17 +87,42 @@ func (s *Session) BindUID(uid string) {
 	atomic.StoreInt32(&s.state, StateAuthorized)
 }
 
-// EnqueueRead 将消息加入读队列
+// EnqueueRead adds a message to the read queue => service
 func (s *Session) EnqueueRead(msg *router.MsgWrapper) {
 	s.readQueue.Put(msg)
 }
 
-// EnqueueWrite 将消息加入写队列
+// EnqueueWrite adds a message to the write queue => client
 func (s *Session) EnqueueWrite(msg *router.MsgWrapper) {
 	s.writeQueue.Put(msg)
 }
 
-// readLoop 处理读取消息
+func (s *Session) heartbeatLoop() {
+	defer s.wg.Done()
+	ticker := time.NewTicker(HeartbeatInterval)
+	defer ticker.Stop()
+
+	for {
+		select {
+		case <-s.closeChan:
+			return
+		case <-ticker.C:
+			// 检查是否超时
+			if time.Since(s.lastHeartbeat) > HeartbeatTimeout {
+				log.WarnF("session %v heartbeat timeout, closing connection", s.sid)
+				s.Close()
+				return
+			}
+
+			// 发送心跳包
+			heartbeat := router.NewMsgWrap(context.TODO()).WithResHeader(&router.Header{
+				Event: "heartbeat",
+			}).Build()
+			s.EnqueueWrite(heartbeat)
+		}
+	}
+}
+
 func (s *Session) readLoop() {
 	defer s.wg.Done()
 
@@ -113,6 +145,10 @@ func (s *Session) readLoop() {
 			case chains.API_GuestLogin:
 				actorid = def.SymbolLocalFirst
 				actorty = template.ACTOR_LOGIN
+			case chains.API_Heartbeat:
+				s.lastHeartbeat = time.Now()
+				// If users need to handle business logic through heartbeat, the message can be passed downstream
+				return
 			default:
 				actorid = s.uid
 				actorty = template.ACTOR_USER
@@ -133,7 +169,6 @@ func (s *Session) readLoop() {
 	}
 }
 
-// writeLoop 处理发送消息
 func (s *Session) writeLoop() {
 	defer s.wg.Done()
 
@@ -188,6 +223,6 @@ func (s *Session) Close() {
 	s.closeOnce.Do(func() {
 		close(s.closeChan)
 		s.conn.Close()
-		s.wg.Wait() // 等待所有 goroutine 结束
+		s.wg.Wait()
 	})
 }

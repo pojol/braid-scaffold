@@ -9,6 +9,11 @@ import (
 	"github.com/pojol/braid/core/actor"
 )
 
+// controlActor manages actor lifecycle operations within a node.
+// It handles:
+//   - Actor exit operations
+//   - Actor reentry operations
+//   - One controller per node
 type controlActor struct {
 	*actor.Runtime
 }

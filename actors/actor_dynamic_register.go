@@ -9,6 +9,11 @@ import (
 	"github.com/pojol/braid/core/actor"
 )
 
+// dynamicRegisterActor handles actor registration within a node.
+// It:
+//   - Listens for actor registration messages
+//   - Registers actors to the current node
+//   - Exists as a singleton instance on each node
 type dynamicRegisterActor struct {
 	*actor.Runtime
 	loader core.IActorLoader

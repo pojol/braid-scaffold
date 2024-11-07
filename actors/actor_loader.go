@@ -14,6 +14,11 @@ import (
 	"github.com/pojol/braid/router"
 )
 
+// DefaultActorLoader manages actor loading and initialization in nodes.
+// It:
+//   - Loads non-dynamic actors from factory during node initialization
+//   - Handles actor picking operations across the cluster
+//   - Automatically locates and utilizes picker actors for selection
 type DefaultActorLoader struct {
 	factory core.IActorFactory
 }

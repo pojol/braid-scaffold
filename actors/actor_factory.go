@@ -6,15 +6,19 @@ import (
 	"github.com/pojol/braid/core"
 )
 
-// MockActorFactory is a factory for creating actors
-type MockActorFactory struct {
+// ActorFactory creates and manages actors defined in config.yml.
+// It:
+//   - Associates actor configurations with their constructors
+//   - Maintains a registry of available actor types
+//   - Provides construction methods for system actors
+type ActorFactory struct {
 	actors       []template.RegisteredActorConfig
 	constructors map[string]*core.ActorConstructor
 }
 
 // NewActorFactory create new actor factory
-func BuildActorFactory(actorcfg []template.RegisteredActorConfig) *MockActorFactory {
-	factory := &MockActorFactory{
+func BuildActorFactory(actorcfg []template.RegisteredActorConfig) *ActorFactory {
+	factory := &ActorFactory{
 		actors:       actorcfg,
 		constructors: make(map[string]*core.ActorConstructor),
 	}
@@ -54,7 +58,7 @@ func BuildActorFactory(actorcfg []template.RegisteredActorConfig) *MockActorFact
 	return factory
 }
 
-func (factory *MockActorFactory) Get(actorType string) *core.ActorConstructor {
+func (factory *ActorFactory) Get(actorType string) *core.ActorConstructor {
 	if _, ok := factory.constructors[actorType]; ok {
 		return factory.constructors[actorType]
 	}
@@ -62,7 +66,7 @@ func (factory *MockActorFactory) Get(actorType string) *core.ActorConstructor {
 	return nil
 }
 
-func (factory *MockActorFactory) GetActors() []*core.ActorConstructor {
+func (factory *ActorFactory) GetActors() []*core.ActorConstructor {
 	actors := []*core.ActorConstructor{}
 	for _, v := range factory.constructors {
 		actors = append(actors, v)

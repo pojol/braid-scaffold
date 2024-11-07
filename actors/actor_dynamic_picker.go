@@ -9,6 +9,11 @@ import (
 	"github.com/pojol/braid/core/actor"
 )
 
+// dynamicPickerActor selects nodes for dynamically constructed actors.
+// It:
+//   - Chooses nodes with lower load in the cluster
+//   - Forwards registration messages to the selected node's registrar
+//   - Helps balance actor distribution across the cluster
 type dynamicPickerActor struct {
 	*actor.Runtime
 }

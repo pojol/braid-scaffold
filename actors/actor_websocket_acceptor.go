@@ -176,6 +176,11 @@ func (a *websocketAcceptorActor) handleMessage(ctx context.Context, header *game
 	return nil
 }
 
+// Message Frame Format:
+// ┌──────────────┬─────────────┬─────────────┐
+// │ Header Size  │ Header Body │ Message Body│
+// │   (2 bytes)  │    (var)    │    (var)    │
+// └──────────────┴─────────────┴─────────────┘
 func parseMessageHeader(msg []byte) (*gameproto.MsgHeader, error) {
 	if len(msg) < 2 {
 		return nil, ErrInvalidMessageFormat

@@ -29,4 +29,5 @@ const (
 
 const (
 	API_GuestLogin = "guest_login"
+	API_Heartbeat  = "heartbeat"
 )
