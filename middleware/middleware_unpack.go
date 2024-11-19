@@ -8,7 +8,7 @@ import (
 	"github.com/gogo/protobuf/proto"
 	"github.com/pojol/braid/core/actor"
 	"github.com/pojol/braid/lib/log"
-	"github.com/pojol/braid/router"
+	"github.com/pojol/braid/router/msg"
 )
 
 type MessageUnpackCfg[T any] struct {
@@ -17,7 +17,7 @@ type MessageUnpackCfg[T any] struct {
 }
 
 func MessageUnpack[T any](cfg *MessageUnpackCfg[T]) actor.EventHandler {
-	return func(msg *router.MsgWrapper) error {
+	return func(mw *msg.Wrapper) error {
 		var msgInstance proto.Message
 		msgType := reflect.TypeOf(cfg.MsgTy)
 
@@ -29,15 +29,15 @@ func MessageUnpack[T any](cfg *MessageUnpackCfg[T]) actor.EventHandler {
 		}
 
 		// 解析消息
-		err := proto.Unmarshal(msg.Req.Body, msgInstance)
+		err := proto.Unmarshal(mw.Req.Body, msgInstance)
 		if err != nil {
 			return fmt.Errorf("unpack msg err %v", err.Error())
 		}
 
 		// 打印消息类型和字段信息
 		log.InfoF("[req event] actor_id : %s actor_ty : %s event : %s: params : %s",
-			msg.Req.Header.TargetActorID,
-			msg.Req.Header.TargetActorType,
+			mw.Req.Header.TargetActorID,
+			mw.Req.Header.TargetActorType,
 			reflect.TypeOf(msgInstance).Elem().Name(), printMessageFields(msgInstance))
 
 		// 将解析后的消息赋值给 cfg.Msg

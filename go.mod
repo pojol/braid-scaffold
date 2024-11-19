@@ -8,7 +8,7 @@ require (
 	github.com/gogo/protobuf v1.3.2
 	github.com/gorilla/websocket v1.5.3
 	github.com/labstack/echo/v4 v4.12.0
-	github.com/pojol/braid v0.0.0-20241101140702-edda7aca27d7
+	github.com/pojol/braid v0.0.0-20241119080426-fe838d6e56b9
 	google.golang.org/protobuf v1.34.2
 	gopkg.in/yaml.v2 v2.4.0
 )

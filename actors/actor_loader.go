@@ -2,7 +2,7 @@ package actors
 
 import (
 	"braid-scaffold/chains"
-	"braid-scaffold/constant"
+	"braid-scaffold/constant/fields"
 	"braid-scaffold/template"
 	"context"
 	"fmt"
@@ -12,6 +12,7 @@ import (
 	"github.com/pojol/braid/def"
 	"github.com/pojol/braid/lib/log"
 	"github.com/pojol/braid/router"
+	"github.com/pojol/braid/router/msg"
 )
 
 // DefaultActorLoader manages actor loading and initialization in nodes.
@@ -29,23 +30,21 @@ func BuildDefaultActorLoader(factory core.IActorFactory) core.IActorLoader {
 
 func (al *DefaultActorLoader) Pick(builder core.IActorBuilder) error {
 
-	customOptions := make(map[string]string)
+	msgbu := msg.NewBuilder(context.TODO())
 
 	for key, value := range builder.GetOptions() {
-		customOptions[key] = fmt.Sprint(value)
+		msgbu.WithReqCustomFields(msg.Attr{Key: key, Value: fmt.Sprint(value)})
 	}
 
-	customOptions[constant.CustomActorID] = builder.GetID()
-	customOptions[constant.CustomActorType] = builder.GetType()
+	msgbu.WithReqCustomFields(fields.ActorID(builder.GetID()))
+	msgbu.WithReqCustomFields(fields.ActorTy(builder.GetType()))
 
 	go func() {
 		err := builder.GetSystem().Call(router.Target{
 			ID: def.SymbolWildcard,
 			Ty: template.ACTOR_DYNAMIC_PICKER,
 			Ev: chains.DynamicPick},
-			router.NewMsgWrap(context.TODO()).WithReqHeader(&router.Header{
-				Custom: customOptions,
-			}).Build(),
+			msgbu.Build(),
 		)
 		if err != nil {
 			log.WarnF("[braid.actorLoader] call dynamic picker err %v", err.Error())

@@ -1,21 +1,22 @@
 package chains
 
 import (
-	"braid-scaffold/constant"
+	"braid-scaffold/constant/fields"
 
 	"github.com/pojol/braid/core"
 	"github.com/pojol/braid/core/actor"
 	"github.com/pojol/braid/lib/log"
-	"github.com/pojol/braid/router"
+	"github.com/pojol/braid/router/msg"
 )
 
 func MakeUnregisterActor(ctx core.ActorContext) core.IChain {
 	return &actor.DefaultChain{
-		Handler: func(mw *router.MsgWrapper) error {
+		Handler: func(mw *msg.Wrapper) error {
 
-			actor_id := mw.GetReqCustomStr(constant.CustomActorID)
+			actor_id := msg.GetReqField[string](mw, fields.KeyActorID)
+			actor_ty := msg.GetReqField[string](mw, fields.KeyActorTy)
 
-			err := ctx.Unregister(actor_id)
+			err := ctx.Unregister(actor_id, actor_ty)
 			if err != nil {
 				log.WarnF("[braid.actor_control] unregister actor %v err %v", actor_id, err)
 			}

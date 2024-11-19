@@ -2,7 +2,7 @@ package session
 
 import (
 	"braid-scaffold/chains"
-	"braid-scaffold/constant"
+	"braid-scaffold/constant/fields"
 	"braid-scaffold/states/gameproto"
 	"braid-scaffold/template"
 	"bytes"
@@ -20,9 +20,10 @@ import (
 	"github.com/pojol/braid/lib/token"
 	"github.com/pojol/braid/lib/unbounded"
 	"github.com/pojol/braid/router"
+	"github.com/pojol/braid/router/msg"
 )
 
-type SendCallback func(target router.Target, msg *router.MsgWrapper) error
+type SendCallback func(target router.Target, mw *msg.Wrapper) error
 
 var bufferPool = sync.Pool{
 	New: func() interface{} {
@@ -88,13 +89,13 @@ func (s *Session) BindUID(uid string) {
 }
 
 // EnqueueRead adds a message to the read queue => service
-func (s *Session) EnqueueRead(msg *router.MsgWrapper) {
-	s.readQueue.Put(msg)
+func (s *Session) EnqueueRead(mw *msg.Wrapper) {
+	s.readQueue.Put(mw)
 }
 
 // EnqueueWrite adds a message to the write queue => client
-func (s *Session) EnqueueWrite(msg *router.MsgWrapper) {
-	s.writeQueue.Put(msg)
+func (s *Session) EnqueueWrite(mw *msg.Wrapper) {
+	s.writeQueue.Put(mw)
 }
 
 func (s *Session) heartbeatLoop() {
@@ -115,7 +116,7 @@ func (s *Session) heartbeatLoop() {
 			}
 
 			// 发送心跳包
-			heartbeat := router.NewMsgWrap(context.TODO()).WithResHeader(&router.Header{
+			heartbeat := msg.NewBuilder(context.TODO()).WithResHeader(&router.Header{
 				Event: "heartbeat",
 			}).Build()
 			s.EnqueueWrite(heartbeat)
@@ -130,8 +131,8 @@ func (s *Session) readLoop() {
 		select {
 		case <-s.closeChan:
 			return
-		case msg := <-s.readQueue.Get():
-			realmsg := msg.(*router.MsgWrapper)
+		case mw := <-s.readQueue.Get():
+			realmsg := mw.(*msg.Wrapper)
 			s.readQueue.Load()
 
 			var actorid, actorty string
@@ -154,7 +155,7 @@ func (s *Session) readLoop() {
 				actorty = template.ACTOR_USER
 			}
 
-			realmsg.Req.Header.Custom[constant.CustomSessionID] = s.sid
+			realmsg.ToBuilder().WithReqCustomFields(fields.SessionID(s.sid))
 
 			err := s.callback(router.Target{
 				ID: actorid,
@@ -176,8 +177,8 @@ func (s *Session) writeLoop() {
 		select {
 		case <-s.closeChan:
 			return
-		case msg := <-s.writeQueue.Get():
-			realmsg := msg.(*router.MsgWrapper)
+		case mw := <-s.writeQueue.Get():
+			realmsg := mw.(*msg.Wrapper)
 			s.writeQueue.Load()
 
 			// Get a buffer from the pool

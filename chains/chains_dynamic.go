@@ -1,20 +1,22 @@
 package chains
 
 import (
-	"braid-scaffold/constant"
+	"braid-scaffold/constant/fields"
 	"braid-scaffold/template"
+	"fmt"
 
 	"github.com/pojol/braid/core"
 	"github.com/pojol/braid/core/actor"
 	"github.com/pojol/braid/router"
+	"github.com/pojol/braid/router/msg"
 )
 
 func MakeDynamicPick(ctx core.ActorContext) core.IChain {
 	return &actor.DefaultChain{
 
-		Handler: func(mw *router.MsgWrapper) error {
+		Handler: func(mw *msg.Wrapper) error {
 
-			actor_ty := mw.GetReqCustomStr(constant.CustomActorType)
+			actor_ty := msg.GetReqField[string](mw, fields.KeyActorTy)
 
 			// Select a node with low weight and relatively fewer registered actors of this type
 			nodeaddr, err := ctx.AddressBook().GetLowWeightNodeForActor(mw.Ctx, actor_ty)
@@ -31,16 +33,21 @@ func MakeDynamicPick(ctx core.ActorContext) core.IChain {
 func MakeDynamicRegister(ctx core.ActorContext) core.IChain {
 	return &actor.DefaultChain{
 
-		Handler: func(mw *router.MsgWrapper) error {
+		Handler: func(mw *msg.Wrapper) error {
 
-			actor_ty := mw.GetReqCustomStr(constant.CustomActorType)
-			actor_id := mw.GetReqCustomStr(constant.CustomActorID)
+			actor_ty := msg.GetReqField[string](mw, fields.KeyActorTy)
+			actor_id := msg.GetReqField[string](mw, fields.KeyActorID)
 
 			builder := ctx.Loader(actor_ty)
 			builder.WithID(actor_id)
 
-			for k, v := range mw.Req.Header.Custom {
-				builder.WithOpt(k, v)
+			custom, err := mw.GetReqCustomMap()
+			if err != nil {
+				return fmt.Errorf("dynamic register get custom map err %w", err)
+			}
+
+			for k, v := range custom {
+				builder.WithOpt(k, v.(string))
 			}
 
 			actor, err := builder.Register()

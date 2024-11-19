@@ -2,7 +2,7 @@ package actors
 
 import (
 	"braid-scaffold/chains"
-	"braid-scaffold/constant"
+	"braid-scaffold/constant/fields"
 	"braid-scaffold/states/gameproto"
 	"braid-scaffold/states/session"
 	"context"
@@ -20,6 +20,7 @@ import (
 	"github.com/pojol/braid/lib/log"
 	"github.com/pojol/braid/lib/token"
 	"github.com/pojol/braid/router"
+	"github.com/pojol/braid/router/msg"
 )
 
 type websocketAcceptorActor struct {
@@ -72,14 +73,12 @@ func (a *websocketAcceptorActor) Init(ctx context.Context) {
 
 	a.RegisterEvent(chains.ClientResponse, func(ctx core.ActorContext) core.IChain {
 		return &actor.DefaultChain{
-			Handler: func(mw *router.MsgWrapper) error {
+			Handler: func(mw *msg.Wrapper) error {
 
-				sid, ok := mw.Res.Header.Custom[constant.CustomSessionID]
-				if ok {
-					session := a.sessionMgr.GetSessionByID(sid)
-					if session != nil {
-						session.EnqueueWrite(mw)
-					}
+				sid := msg.GetResField[string](mw, fields.KeySessionID)
+				session := a.sessionMgr.GetSessionByID(sid)
+				if session != nil {
+					session.EnqueueWrite(mw)
 				}
 
 				return nil
@@ -88,13 +87,11 @@ func (a *websocketAcceptorActor) Init(ctx context.Context) {
 	})
 	a.RegisterEvent(chains.ClientBroadcast, func(ctx core.ActorContext) core.IChain {
 		return &actor.DefaultChain{
-			Handler: func(mw *router.MsgWrapper) error {
-				uid, ok := mw.Res.Header.Custom[constant.CustomUserID]
-				if ok {
-					session := a.sessionMgr.GetSessionByUID(uid)
-					if session != nil {
-						session.EnqueueWrite(mw)
-					}
+			Handler: func(mw *msg.Wrapper) error {
+				uid := msg.GetResField[string](mw, fields.KeyUserID)
+				session := a.sessionMgr.GetSessionByUID(uid)
+				if session != nil {
+					session.EnqueueWrite(mw)
 				}
 				return nil
 			},
@@ -139,24 +136,24 @@ func (a *websocketAcceptorActor) received(c echo.Context) error {
 	return nil
 }
 
-func (a *websocketAcceptorActor) handleMessage(ctx context.Context, header *gameproto.MsgHeader, msg []byte, ws *websocket.Conn) error {
+func (a *websocketAcceptorActor) handleMessage(ctx context.Context, header *gameproto.MsgHeader, msgbody []byte, ws *websocket.Conn) error {
 
 	var userID string
 	var err error
 
-	sendMsg := router.NewMsgWrap(ctx).
+	sendMsg := msg.NewBuilder(ctx).
 		WithReqHeader(&router.Header{
 			Token: header.Token,
 			Event: header.Event,
 		}).
-		WithGateID(a.Id).
-		WithReqBody(msg[2+binary.LittleEndian.Uint16(msg[:2]):]).
+		WithReqCustomFields(fields.GateID(a.Id)).
+		WithReqBody(msgbody[2+binary.LittleEndian.Uint16(msgbody[:2]):]).
 		Build()
 
 	if header.Event == chains.API_GuestLogin {
 
-		session := a.sessionMgr.NewSession(ws, func(tar router.Target, msg *router.MsgWrapper) error {
-			return a.Sys.Send(tar, msg)
+		session := a.sessionMgr.NewSession(ws, func(tar router.Target, mw *msg.Wrapper) error {
+			return a.Sys.Send(tar, mw)
 		})
 
 		session.EnqueueRead(sendMsg)
