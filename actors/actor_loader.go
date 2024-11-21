@@ -1,7 +1,7 @@
 package actors
 
 import (
-	"braid-scaffold/chains"
+	"braid-scaffold/constant/events"
 	"braid-scaffold/constant/fields"
 	"braid-scaffold/template"
 	"context"
@@ -43,7 +43,7 @@ func (al *DefaultActorLoader) Pick(builder core.IActorBuilder) error {
 		err := builder.GetSystem().Call(router.Target{
 			ID: def.SymbolWildcard,
 			Ty: template.ACTOR_DYNAMIC_PICKER,
-			Ev: chains.DynamicPick},
+			Ev: events.DynamicPick},
 			msgbu.Build(),
 		)
 		if err != nil {

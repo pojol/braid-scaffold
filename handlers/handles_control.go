@@ -1,4 +1,4 @@
-package chains
+package handlers
 
 import (
 	"braid-scaffold/constant/fields"

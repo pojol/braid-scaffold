@@ -1,7 +1,7 @@
 package actors
 
 import (
-	"braid-scaffold/chains"
+	"braid-scaffold/constant/events"
 	"braid-scaffold/constant/fields"
 	"braid-scaffold/states/gameproto"
 	"braid-scaffold/states/session"
@@ -71,7 +71,7 @@ func (a *websocketAcceptorActor) Init(ctx context.Context) {
 
 	a.echoptr.GET("/ws", a.received)
 
-	a.RegisterEvent(chains.ClientResponse, func(ctx core.ActorContext) core.IChain {
+	a.RegisterEvent(events.ClientResponse, func(ctx core.ActorContext) core.IChain {
 		return &actor.DefaultChain{
 			Handler: func(mw *msg.Wrapper) error {
 
@@ -85,7 +85,7 @@ func (a *websocketAcceptorActor) Init(ctx context.Context) {
 			},
 		}
 	})
-	a.RegisterEvent(chains.ClientBroadcast, func(ctx core.ActorContext) core.IChain {
+	a.RegisterEvent(events.ClientBroadcast, func(ctx core.ActorContext) core.IChain {
 		return &actor.DefaultChain{
 			Handler: func(mw *msg.Wrapper) error {
 				uid := msg.GetResField[string](mw, fields.KeyUserID)
@@ -150,7 +150,7 @@ func (a *websocketAcceptorActor) handleMessage(ctx context.Context, header *game
 		WithReqBody(msgbody[2+binary.LittleEndian.Uint16(msgbody[:2]):]).
 		Build()
 
-	if header.Event == chains.API_GuestLogin {
+	if header.Event == events.API_GuestLogin {
 
 		session := a.sessionMgr.NewSession(ws, func(tar router.Target, mw *msg.Wrapper) error {
 			return a.Sys.Send(tar, mw)

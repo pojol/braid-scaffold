@@ -1,6 +1,7 @@
-package chains
+package handlers
 
 import (
+	"braid-scaffold/constant/events"
 	"braid-scaffold/constant/fields"
 	"braid-scaffold/template"
 	"fmt"
@@ -25,7 +26,7 @@ func MakeDynamicPick(ctx core.ActorContext) core.IChain {
 			}
 
 			// dispatcher to picker node
-			return ctx.Call(router.Target{ID: nodeaddr.Node + "_" + template.ACTOR_DYNAMIC_REGISTER, Ty: template.ACTOR_DYNAMIC_REGISTER, Ev: DynamicRegister}, mw)
+			return ctx.Call(router.Target{ID: nodeaddr.Node + "_" + template.ACTOR_DYNAMIC_REGISTER, Ty: template.ACTOR_DYNAMIC_REGISTER, Ev: events.DynamicRegister}, mw)
 		},
 	}
 }

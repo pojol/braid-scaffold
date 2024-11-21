@@ -1,7 +1,8 @@
 package actors
 
 import (
-	"braid-scaffold/chains"
+	"braid-scaffold/constant/events"
+	"braid-scaffold/handlers"
 	"braid-scaffold/template"
 	"context"
 
@@ -27,5 +28,5 @@ func NewControlActor(p core.IActorBuilder) core.IActor {
 func (a *controlActor) Init(ctx context.Context) {
 	a.Runtime.Init(ctx)
 
-	a.RegisterEvent(chains.UnregisterActor, chains.MakeUnregisterActor)
+	a.RegisterEvent(events.UnregisterActor, handlers.MakeUnregisterActor)
 }

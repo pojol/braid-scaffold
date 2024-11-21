@@ -1,7 +1,7 @@
 package session
 
 import (
-	"braid-scaffold/chains"
+	"braid-scaffold/constant/events"
 	"braid-scaffold/constant/fields"
 	"braid-scaffold/states/gameproto"
 	"braid-scaffold/template"
@@ -143,10 +143,10 @@ func (s *Session) readLoop() {
 			}
 
 			switch realmsg.Req.Header.Event {
-			case chains.API_GuestLogin:
+			case events.API_GuestLogin:
 				actorid = def.SymbolLocalFirst
 				actorty = template.ACTOR_LOGIN
-			case chains.API_Heartbeat:
+			case events.API_Heartbeat:
 				s.lastHeartbeat = time.Now()
 				// If users need to handle business logic through heartbeat, the message can be passed downstream
 				return
@@ -190,7 +190,7 @@ func (s *Session) writeLoop() {
 				Token: realmsg.Res.Header.Token,
 			}
 
-			if resHeader.Event == chains.API_GuestLogin {
+			if resHeader.Event == events.API_GuestLogin {
 				userID, err := token.Parse(resHeader.Token)
 				if err != nil {
 					log.WarnF("bind uid, but token %v parse err %v", resHeader.Token, err)

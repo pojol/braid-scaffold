@@ -1,4 +1,4 @@
-package chains
+package events
 
 // Built-in actor chains
 const (

@@ -1,7 +1,8 @@
 package actors
 
 import (
-	"braid-scaffold/chains"
+	"braid-scaffold/constant/events"
+	"braid-scaffold/handlers"
 	"braid-scaffold/template"
 	"context"
 
@@ -29,5 +30,5 @@ func NewDynamicRegisterActor(p core.IActorBuilder) core.IActor {
 func (a *dynamicRegisterActor) Init(ctx context.Context) {
 	a.Runtime.Init(ctx)
 
-	a.RegisterEvent(chains.DynamicRegister, chains.MakeDynamicRegister)
+	a.RegisterEvent(events.DynamicRegister, handlers.MakeDynamicRegister)
 }

@@ -1,7 +1,8 @@
 package actors
 
 import (
-	"braid-scaffold/chains"
+	"braid-scaffold/constant/events"
+	"braid-scaffold/handlers"
 	"braid-scaffold/template"
 	"context"
 
@@ -26,5 +27,5 @@ func NewDynamicPickerActor(p core.IActorBuilder) core.IActor {
 
 func (a *dynamicPickerActor) Init(ctx context.Context) {
 	a.Runtime.Init(ctx)
-	a.RegisterEvent(chains.DynamicPick, chains.MakeDynamicPick)
+	a.RegisterEvent(events.DynamicPick, handlers.MakeDynamicPick)
 }
