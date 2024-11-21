@@ -208,7 +208,7 @@ func (a *websocketAcceptorActor) Update() {
 	}
 
 	if err != nil {
-		log.ErrorF("Failed to start echo server: %v", err.Error())
+		log.InfoF("Failed to start echo server: %v", err.Error())
 	}
 }
 

@@ -8,11 +8,11 @@ node:
   
   # Actor 配置列表（在模版中选择需要装载到这个节点的 actor
   actors:
-    - name: "HTTP_ACCEPTOR"
+    - name: "WEBSOCKET_ACCEPTOR"
       unique: true
       weight: 100
       options:
-        port: "8008"
+        port: "8888"
 
     ######## base
     - name : "DYNAMIC_PICKER"
