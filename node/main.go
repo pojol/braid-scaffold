@@ -16,19 +16,19 @@ import (
 // This is a demonstration service. After users pull it, they can copy the code for use in their own services and then delete it.
 
 func main() {
-	slog, _ := log.NewServerLogger("demo-1")
+	slog, _ := log.NewServerLogger("node-1")
 	log.SetSLog(slog)
 	defer log.Sync()
 
 	// mock
-	os.Setenv("BRAID_NODE_ID", "demo-1")
+	os.Setenv("BRAID_NODE_ID", "node-1")
 	os.Setenv("BRAID_NODE_WEIGHT", "100")
 	os.Setenv("BRAID_NODE_PORT", "22222")
 
 	// mock redis
 	redis.BuildClientWithOption(redis.WithAddr("redis://127.0.0.1:6379/0"))
 
-	nodeCfg, err := template.ParseConfig("../../template/demo-1.yml", "../../template/actor_template.yml")
+	nodeCfg, err := template.ParseConfig("node-1.yml", "../template/actor_template.yml")
 	if err != nil {
 		panic(err)
 	}
