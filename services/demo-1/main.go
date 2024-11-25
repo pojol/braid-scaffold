@@ -9,7 +9,7 @@ import (
 
 	"github.com/pojol/braid/3rd/redis"
 	"github.com/pojol/braid/core"
-	"github.com/pojol/braid/core/cluster/node"
+	"github.com/pojol/braid/core/node"
 	"github.com/pojol/braid/lib/log"
 )
 
