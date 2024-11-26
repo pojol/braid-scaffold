@@ -103,6 +103,20 @@ func (a *websocketAcceptorActor) Init(ctx context.Context) {
 		return nil
 	}, nil)
 
+	go func() {
+		var err error
+		log.InfoF("Starting WebSocket server on port %s", a.Port)
+		if a.KeyPath != "" {
+			err = a.echoptr.StartTLS(":"+a.Port, a.PemPath, a.KeyPath)
+		} else {
+			err = a.echoptr.Start(":" + a.Port)
+		}
+
+		if err != nil {
+			log.InfoF("Failed to start echo server: %v", err.Error())
+		}
+	}()
+
 	log.InfoF("init websocket actor succ")
 }
 
@@ -194,22 +208,6 @@ func parseMessageHeader(msg []byte) (*gameproto.MsgHeader, error) {
 	}
 
 	return header, nil
-}
-
-func (a *websocketAcceptorActor) Update() {
-	go a.Runtime.Update()
-
-	var err error
-	log.InfoF("Starting WebSocket server on port %s", a.Port)
-	if a.KeyPath != "" {
-		err = a.echoptr.StartTLS(":"+a.Port, a.PemPath, a.KeyPath)
-	} else {
-		err = a.echoptr.Start(":" + a.Port)
-	}
-
-	if err != nil {
-		log.InfoF("Failed to start echo server: %v", err.Error())
-	}
 }
 
 func (a *websocketAcceptorActor) Exit() {

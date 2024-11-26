@@ -51,15 +51,12 @@ func MakeDynamicRegister(ctx core.ActorContext) core.IChain {
 				builder.WithOpt(k, v.(string))
 			}
 
-			actor, err := builder.Register()
+			_, err = builder.Register(mw.Ctx)
 			if err != nil {
 				return err
 			}
 
 			mw.Req.Header.PrevActorType = template.ACTOR_DYNAMIC_REGISTER
-
-			actor.Init(mw.Ctx)
-			go actor.Update()
 
 			return nil
 		},

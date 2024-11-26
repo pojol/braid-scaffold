@@ -60,8 +60,6 @@ func main() {
 		panic(fmt.Errorf("node init err %v", err.Error()))
 	}
 
-	nod.Update()
-
 	fmt.Println("start http server succ")
 	nod.WaitClose() // watch node exit signal
 }

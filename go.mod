@@ -9,7 +9,7 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/gorilla/websocket v1.5.3
 	github.com/labstack/echo/v4 v4.12.0
-	github.com/pojol/braid v0.0.1
+	github.com/pojol/braid v0.1.1
 	gopkg.in/yaml.v2 v2.4.0
 )
 
