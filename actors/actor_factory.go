@@ -35,6 +35,10 @@ func BuildActorFactory(actorcfg []template.RegisteredActorConfig) *ActorFactory 
 			create = NewWSAcceptorActor
 		case template.ACTOR_CONTROL:
 			create = NewControlActor
+		case template.ACTOR_USER:
+			create = NewUserActor
+		case template.ACTOR_LOGIN:
+			create = NewLoginActor
 			// todo ...
 		}
 

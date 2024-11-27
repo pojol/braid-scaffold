@@ -10,7 +10,7 @@ protoc --proto_path=. --gogofaster_out=plugins=grpc,Mcommproto/comm.proto=braid-
 
 # 为 gameproto 生成代码
 echo "Generating code for gameproto..."
-protoc --proto_path=. --gogofaster_out=plugins=grpc,Mcommproto/comm.proto=braid-scaffold/states/commproto:. gameproto/*.proto
+protoc --proto_path=. --gogofaster_out=plugins=grpc,Mcommproto/comm.proto=braid-scaffold/states/commproto,Muser/user.proto=braid-scaffold/states/user:. gameproto/*.proto
 
 # 为 user 生成代码
 echo "Generating code for user..."

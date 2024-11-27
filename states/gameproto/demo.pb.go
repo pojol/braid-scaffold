@@ -4,7 +4,7 @@
 package gameproto
 
 import (
-	_ "braid-scaffold/states/commproto"
+	user "braid-scaffold/states/user"
 	fmt "fmt"
 	proto "github.com/gogo/protobuf/proto"
 	io "io"
@@ -24,8 +24,10 @@ var _ = math.Inf
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
 type MsgHeader struct {
-	Event string `protobuf:"bytes,1,opt,name=Event,proto3" json:"Event,omitempty"`
-	Token string `protobuf:"bytes,2,opt,name=Token,proto3" json:"Token,omitempty"`
+	Event   string `protobuf:"bytes,1,opt,name=Event,proto3" json:"Event,omitempty"`
+	Token   string `protobuf:"bytes,2,opt,name=Token,proto3" json:"Token,omitempty"`
+	ErrMsg  string `protobuf:"bytes,3,opt,name=ErrMsg,proto3" json:"ErrMsg,omitempty"`
+	ErrCode int32  `protobuf:"varint,4,opt,name=ErrCode,proto3" json:"ErrCode,omitempty"`
 }
 
 func (m *MsgHeader) Reset()         { *m = MsgHeader{} }
@@ -73,6 +75,20 @@ func (m *MsgHeader) GetToken() string {
 		return m.Token
 	}
 	return ""
+}
+
+func (m *MsgHeader) GetErrMsg() string {
+	if m != nil {
+		return m.ErrMsg
+	}
+	return ""
+}
+
+func (m *MsgHeader) GetErrCode() int32 {
+	if m != nil {
+		return m.ErrCode
+	}
+	return 0
 }
 
 type GuestLoginReq struct {
@@ -171,22 +187,21 @@ func (m *GuestLoginRes) GetToken() string {
 	return ""
 }
 
-type HelloBraidReq struct {
-	Msg string `protobuf:"bytes,1,opt,name=Msg,proto3" json:"Msg,omitempty"`
+type UserInfoReq struct {
 }
 
-func (m *HelloBraidReq) Reset()         { *m = HelloBraidReq{} }
-func (m *HelloBraidReq) String() string { return proto.CompactTextString(m) }
-func (*HelloBraidReq) ProtoMessage()    {}
-func (*HelloBraidReq) Descriptor() ([]byte, []int) {
+func (m *UserInfoReq) Reset()         { *m = UserInfoReq{} }
+func (m *UserInfoReq) String() string { return proto.CompactTextString(m) }
+func (*UserInfoReq) ProtoMessage()    {}
+func (*UserInfoReq) Descriptor() ([]byte, []int) {
 	return fileDescriptor_f2dd43d27157cb6e, []int{3}
 }
-func (m *HelloBraidReq) XXX_Unmarshal(b []byte) error {
+func (m *UserInfoReq) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *HelloBraidReq) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *UserInfoReq) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_HelloBraidReq.Marshal(b, m, deterministic)
+		return xxx_messageInfo_UserInfoReq.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -196,41 +211,36 @@ func (m *HelloBraidReq) XXX_Marshal(b []byte, deterministic bool) ([]byte, error
 		return b[:n], nil
 	}
 }
-func (m *HelloBraidReq) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_HelloBraidReq.Merge(m, src)
+func (m *UserInfoReq) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_UserInfoReq.Merge(m, src)
 }
-func (m *HelloBraidReq) XXX_Size() int {
+func (m *UserInfoReq) XXX_Size() int {
 	return m.Size()
 }
-func (m *HelloBraidReq) XXX_DiscardUnknown() {
-	xxx_messageInfo_HelloBraidReq.DiscardUnknown(m)
+func (m *UserInfoReq) XXX_DiscardUnknown() {
+	xxx_messageInfo_UserInfoReq.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_HelloBraidReq proto.InternalMessageInfo
+var xxx_messageInfo_UserInfoReq proto.InternalMessageInfo
 
-func (m *HelloBraidReq) GetMsg() string {
-	if m != nil {
-		return m.Msg
-	}
-	return ""
+type UserInfoRes struct {
+	User     *user.UserModule     `protobuf:"bytes,1,opt,name=User,proto3" json:"User,omitempty"`
+	Bag      *user.BagModule      `protobuf:"bytes,2,opt,name=Bag,proto3" json:"Bag,omitempty"`
+	TimeInfo *user.TimeInfoModule `protobuf:"bytes,3,opt,name=TimeInfo,proto3" json:"TimeInfo,omitempty"`
 }
 
-type HelloBraidRes struct {
-	Msg string `protobuf:"bytes,1,opt,name=Msg,proto3" json:"Msg,omitempty"`
-}
-
-func (m *HelloBraidRes) Reset()         { *m = HelloBraidRes{} }
-func (m *HelloBraidRes) String() string { return proto.CompactTextString(m) }
-func (*HelloBraidRes) ProtoMessage()    {}
-func (*HelloBraidRes) Descriptor() ([]byte, []int) {
+func (m *UserInfoRes) Reset()         { *m = UserInfoRes{} }
+func (m *UserInfoRes) String() string { return proto.CompactTextString(m) }
+func (*UserInfoRes) ProtoMessage()    {}
+func (*UserInfoRes) Descriptor() ([]byte, []int) {
 	return fileDescriptor_f2dd43d27157cb6e, []int{4}
 }
-func (m *HelloBraidRes) XXX_Unmarshal(b []byte) error {
+func (m *UserInfoRes) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *HelloBraidRes) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *UserInfoRes) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_HelloBraidRes.Marshal(b, m, deterministic)
+		return xxx_messageInfo_UserInfoRes.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -240,50 +250,70 @@ func (m *HelloBraidRes) XXX_Marshal(b []byte, deterministic bool) ([]byte, error
 		return b[:n], nil
 	}
 }
-func (m *HelloBraidRes) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_HelloBraidRes.Merge(m, src)
+func (m *UserInfoRes) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_UserInfoRes.Merge(m, src)
 }
-func (m *HelloBraidRes) XXX_Size() int {
+func (m *UserInfoRes) XXX_Size() int {
 	return m.Size()
 }
-func (m *HelloBraidRes) XXX_DiscardUnknown() {
-	xxx_messageInfo_HelloBraidRes.DiscardUnknown(m)
+func (m *UserInfoRes) XXX_DiscardUnknown() {
+	xxx_messageInfo_UserInfoRes.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_HelloBraidRes proto.InternalMessageInfo
+var xxx_messageInfo_UserInfoRes proto.InternalMessageInfo
 
-func (m *HelloBraidRes) GetMsg() string {
+func (m *UserInfoRes) GetUser() *user.UserModule {
 	if m != nil {
-		return m.Msg
+		return m.User
 	}
-	return ""
+	return nil
+}
+
+func (m *UserInfoRes) GetBag() *user.BagModule {
+	if m != nil {
+		return m.Bag
+	}
+	return nil
+}
+
+func (m *UserInfoRes) GetTimeInfo() *user.TimeInfoModule {
+	if m != nil {
+		return m.TimeInfo
+	}
+	return nil
 }
 
 func init() {
 	proto.RegisterType((*MsgHeader)(nil), "gameproto.MsgHeader")
 	proto.RegisterType((*GuestLoginReq)(nil), "gameproto.GuestLoginReq")
 	proto.RegisterType((*GuestLoginRes)(nil), "gameproto.GuestLoginRes")
-	proto.RegisterType((*HelloBraidReq)(nil), "gameproto.HelloBraidReq")
-	proto.RegisterType((*HelloBraidRes)(nil), "gameproto.HelloBraidRes")
+	proto.RegisterType((*UserInfoReq)(nil), "gameproto.UserInfoReq")
+	proto.RegisterType((*UserInfoRes)(nil), "gameproto.UserInfoRes")
 }
 
 func init() { proto.RegisterFile("gameproto/demo.proto", fileDescriptor_f2dd43d27157cb6e) }
 
 var fileDescriptor_f2dd43d27157cb6e = []byte{
-	// 197 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0x12, 0x49, 0x4f, 0xcc, 0x4d,
-	0x2d, 0x28, 0xca, 0x2f, 0xc9, 0xd7, 0x4f, 0x49, 0xcd, 0xcd, 0xd7, 0x03, 0x33, 0x85, 0x38, 0xe1,
-	0xa2, 0x52, 0x22, 0xc9, 0xf9, 0xb9, 0xb9, 0x10, 0x05, 0x20, 0x16, 0x44, 0x81, 0x92, 0x39, 0x17,
-	0xa7, 0x6f, 0x71, 0xba, 0x47, 0x6a, 0x62, 0x4a, 0x6a, 0x91, 0x90, 0x08, 0x17, 0xab, 0x6b, 0x59,
-	0x6a, 0x5e, 0x89, 0x04, 0xa3, 0x02, 0xa3, 0x06, 0x67, 0x10, 0x84, 0x03, 0x12, 0x0d, 0xc9, 0xcf,
-	0x4e, 0xcd, 0x93, 0x60, 0x82, 0x88, 0x82, 0x39, 0x4a, 0x8a, 0x5c, 0xbc, 0xee, 0xa5, 0xa9, 0xc5,
-	0x25, 0x3e, 0xf9, 0xe9, 0x99, 0x79, 0x41, 0xa9, 0x85, 0x42, 0x02, 0x5c, 0xcc, 0x8e, 0xc9, 0xc9,
-	0x50, 0xad, 0x20, 0xa6, 0x92, 0x39, 0xaa, 0x92, 0x62, 0x4c, 0x25, 0xb8, 0xcd, 0xf6, 0x48, 0xcd,
-	0xc9, 0xc9, 0x77, 0x2a, 0x4a, 0xcc, 0x4c, 0x81, 0x9a, 0xed, 0x5b, 0x9c, 0x0e, 0xd3, 0xe8, 0x5b,
-	0x9c, 0x8e, 0xae, 0xa4, 0x18, 0x53, 0x89, 0x93, 0xc4, 0x89, 0x47, 0x72, 0x8c, 0x17, 0x1e, 0xc9,
-	0x31, 0x3e, 0x78, 0x24, 0xc7, 0x38, 0xe1, 0xb1, 0x1c, 0xc3, 0x85, 0xc7, 0x72, 0x0c, 0x37, 0x1e,
-	0xcb, 0x31, 0x24, 0xb1, 0x81, 0xfd, 0x6e, 0x0c, 0x08, 0x00, 0x00, 0xff, 0xff, 0xbd, 0x65, 0x6e,
-	0x93, 0x34, 0x01, 0x00, 0x00,
+	// 294 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x6c, 0x91, 0x4f, 0x4b, 0xc3, 0x30,
+	0x18, 0x87, 0x17, 0xbb, 0x4d, 0x9b, 0x32, 0x36, 0x42, 0x91, 0xe0, 0x21, 0x6c, 0xc5, 0xc3, 0x4e,
+	0x9b, 0xd4, 0x83, 0x67, 0x2b, 0x45, 0x05, 0x7b, 0x29, 0xf3, 0x03, 0xd4, 0xf5, 0x35, 0x14, 0x6d,
+	0xe3, 0x92, 0xd6, 0xcf, 0xe0, 0xd1, 0x8f, 0xe5, 0x71, 0x47, 0x8f, 0xd2, 0x7e, 0x11, 0x49, 0xda,
+	0x0d, 0x45, 0x2f, 0xe1, 0xfd, 0x3d, 0xef, 0xc3, 0x9b, 0x7f, 0xd8, 0xe5, 0x49, 0x0e, 0x2f, 0x52,
+	0x94, 0x62, 0x99, 0x42, 0x2e, 0x16, 0xa6, 0x24, 0xf6, 0x9e, 0x9e, 0x8c, 0x2b, 0x05, 0x72, 0xa9,
+	0x97, 0xb6, 0xe7, 0x65, 0xd8, 0x8e, 0x14, 0xbf, 0x81, 0x24, 0x05, 0x49, 0x5c, 0x3c, 0x08, 0x5f,
+	0xa1, 0x28, 0x29, 0x9a, 0xa2, 0xb9, 0x1d, 0xb7, 0x41, 0xd3, 0x95, 0x78, 0x82, 0x82, 0x1e, 0xb4,
+	0xd4, 0x04, 0x72, 0x8c, 0x87, 0xa1, 0x94, 0x91, 0xe2, 0xd4, 0x32, 0xb8, 0x4b, 0x84, 0xe2, 0xc3,
+	0x50, 0xca, 0x2b, 0x91, 0x02, 0xed, 0x4f, 0xd1, 0x7c, 0x10, 0xef, 0xa2, 0x37, 0xc3, 0xa3, 0xeb,
+	0x0a, 0x54, 0x79, 0x27, 0x78, 0x56, 0xc4, 0xb0, 0x21, 0x13, 0x6c, 0x5d, 0xae, 0xd7, 0xdd, 0x66,
+	0xba, 0xf4, 0x2e, 0x7e, 0x2b, 0xea, 0xaf, 0xf2, 0xff, 0x69, 0xbc, 0x11, 0x76, 0xee, 0x15, 0xc8,
+	0xdb, 0xe2, 0x51, 0xc4, 0xb0, 0xf1, 0xde, 0xd0, 0xcf, 0xac, 0xc8, 0x29, 0xee, 0xeb, 0x68, 0xe6,
+	0x38, 0xfe, 0x64, 0x61, 0x1e, 0x40, 0x93, 0x48, 0xa4, 0xd5, 0x33, 0xc4, 0xa6, 0x4b, 0x66, 0xd8,
+	0x0a, 0x12, 0x6e, 0x06, 0x3b, 0xfe, 0xb8, 0x95, 0x82, 0x84, 0x77, 0x8e, 0xee, 0x91, 0x33, 0x7c,
+	0xb4, 0xca, 0x72, 0xd0, 0x73, 0xcd, 0xbd, 0x1d, 0xdf, 0x6d, 0xbd, 0x1d, 0xed, 0xe4, 0xbd, 0x15,
+	0xd0, 0x8f, 0x9a, 0xa1, 0x6d, 0xcd, 0xd0, 0x57, 0xcd, 0xd0, 0x7b, 0xc3, 0x7a, 0xdb, 0x86, 0xf5,
+	0x3e, 0x1b, 0xd6, 0x7b, 0x18, 0x9a, 0x1f, 0x38, 0xff, 0x0e, 0x00, 0x00, 0xff, 0xff, 0x6d, 0x14,
+	0x62, 0x4a, 0xb5, 0x01, 0x00, 0x00,
 }
 
 func (m *MsgHeader) Marshal() (dAtA []byte, err error) {
@@ -306,6 +336,18 @@ func (m *MsgHeader) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	_ = i
 	var l int
 	_ = l
+	if m.ErrCode != 0 {
+		i = encodeVarintDemo(dAtA, i, uint64(m.ErrCode))
+		i--
+		dAtA[i] = 0x20
+	}
+	if len(m.ErrMsg) > 0 {
+		i -= len(m.ErrMsg)
+		copy(dAtA[i:], m.ErrMsg)
+		i = encodeVarintDemo(dAtA, i, uint64(len(m.ErrMsg)))
+		i--
+		dAtA[i] = 0x1a
+	}
 	if len(m.Token) > 0 {
 		i -= len(m.Token)
 		copy(dAtA[i:], m.Token)
@@ -390,7 +432,7 @@ func (m *GuestLoginRes) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
-func (m *HelloBraidReq) Marshal() (dAtA []byte, err error) {
+func (m *UserInfoReq) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -400,27 +442,20 @@ func (m *HelloBraidReq) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *HelloBraidReq) MarshalTo(dAtA []byte) (int, error) {
+func (m *UserInfoReq) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *HelloBraidReq) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *UserInfoReq) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	if len(m.Msg) > 0 {
-		i -= len(m.Msg)
-		copy(dAtA[i:], m.Msg)
-		i = encodeVarintDemo(dAtA, i, uint64(len(m.Msg)))
-		i--
-		dAtA[i] = 0xa
-	}
 	return len(dAtA) - i, nil
 }
 
-func (m *HelloBraidRes) Marshal() (dAtA []byte, err error) {
+func (m *UserInfoRes) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -430,20 +465,49 @@ func (m *HelloBraidRes) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *HelloBraidRes) MarshalTo(dAtA []byte) (int, error) {
+func (m *UserInfoRes) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *HelloBraidRes) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *UserInfoRes) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	if len(m.Msg) > 0 {
-		i -= len(m.Msg)
-		copy(dAtA[i:], m.Msg)
-		i = encodeVarintDemo(dAtA, i, uint64(len(m.Msg)))
+	if m.TimeInfo != nil {
+		{
+			size, err := m.TimeInfo.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintDemo(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x1a
+	}
+	if m.Bag != nil {
+		{
+			size, err := m.Bag.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintDemo(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x12
+	}
+	if m.User != nil {
+		{
+			size, err := m.User.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintDemo(dAtA, i, uint64(size))
+		}
 		i--
 		dAtA[i] = 0xa
 	}
@@ -474,6 +538,13 @@ func (m *MsgHeader) Size() (n int) {
 	l = len(m.Token)
 	if l > 0 {
 		n += 1 + l + sovDemo(uint64(l))
+	}
+	l = len(m.ErrMsg)
+	if l > 0 {
+		n += 1 + l + sovDemo(uint64(l))
+	}
+	if m.ErrCode != 0 {
+		n += 1 + sovDemo(uint64(m.ErrCode))
 	}
 	return n
 }
@@ -508,27 +579,31 @@ func (m *GuestLoginRes) Size() (n int) {
 	return n
 }
 
-func (m *HelloBraidReq) Size() (n int) {
+func (m *UserInfoReq) Size() (n int) {
 	if m == nil {
 		return 0
 	}
 	var l int
 	_ = l
-	l = len(m.Msg)
-	if l > 0 {
-		n += 1 + l + sovDemo(uint64(l))
-	}
 	return n
 }
 
-func (m *HelloBraidRes) Size() (n int) {
+func (m *UserInfoRes) Size() (n int) {
 	if m == nil {
 		return 0
 	}
 	var l int
 	_ = l
-	l = len(m.Msg)
-	if l > 0 {
+	if m.User != nil {
+		l = m.User.Size()
+		n += 1 + l + sovDemo(uint64(l))
+	}
+	if m.Bag != nil {
+		l = m.Bag.Size()
+		n += 1 + l + sovDemo(uint64(l))
+	}
+	if m.TimeInfo != nil {
+		l = m.TimeInfo.Size()
 		n += 1 + l + sovDemo(uint64(l))
 	}
 	return n
@@ -633,6 +708,57 @@ func (m *MsgHeader) Unmarshal(dAtA []byte) error {
 			}
 			m.Token = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
+		case 3:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ErrMsg", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowDemo
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthDemo
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthDemo
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.ErrMsg = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 4:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ErrCode", wireType)
+			}
+			m.ErrCode = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowDemo
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.ErrCode |= int32(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
 		default:
 			iNdEx = preIndex
 			skippy, err := skipDemo(dAtA[iNdEx:])
@@ -850,7 +976,7 @@ func (m *GuestLoginRes) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *HelloBraidReq) Unmarshal(dAtA []byte) error {
+func (m *UserInfoReq) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -873,44 +999,12 @@ func (m *HelloBraidReq) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: HelloBraidReq: wiretype end group for non-group")
+			return fmt.Errorf("proto: UserInfoReq: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: HelloBraidReq: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: UserInfoReq: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
-		case 1:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Msg", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowDemo
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthDemo
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthDemo
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.Msg = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
 			skippy, err := skipDemo(dAtA[iNdEx:])
@@ -932,7 +1026,7 @@ func (m *HelloBraidReq) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *HelloBraidRes) Unmarshal(dAtA []byte) error {
+func (m *UserInfoRes) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -955,17 +1049,17 @@ func (m *HelloBraidRes) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: HelloBraidRes: wiretype end group for non-group")
+			return fmt.Errorf("proto: UserInfoRes: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: HelloBraidRes: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: UserInfoRes: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Msg", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field User", wireType)
 			}
-			var stringLen uint64
+			var msglen int
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowDemo
@@ -975,23 +1069,99 @@ func (m *HelloBraidRes) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
+				msglen |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
+			if msglen < 0 {
 				return ErrInvalidLengthDemo
 			}
-			postIndex := iNdEx + intStringLen
+			postIndex := iNdEx + msglen
 			if postIndex < 0 {
 				return ErrInvalidLengthDemo
 			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.Msg = string(dAtA[iNdEx:postIndex])
+			if m.User == nil {
+				m.User = &user.UserModule{}
+			}
+			if err := m.User.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Bag", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowDemo
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthDemo
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthDemo
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.Bag == nil {
+				m.Bag = &user.BagModule{}
+			}
+			if err := m.Bag.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 3:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field TimeInfo", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowDemo
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthDemo
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthDemo
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.TimeInfo == nil {
+				m.TimeInfo = &user.TimeInfoModule{}
+			}
+			if err := m.TimeInfo.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex

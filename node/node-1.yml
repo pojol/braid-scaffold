@@ -12,7 +12,16 @@ node:
       unique: true
       weight: 100
       options:
-        port: "8888"
+        port: "8889"
+    - name: "LOGIN"
+      id : "login"
+      unique : true
+      weight : 200
+    - name : "USER"
+      id : "user"
+      unique : false
+      weight : 100
+      dynamic : true
 
     ######## base
     - name : "DYNAMIC_PICKER"

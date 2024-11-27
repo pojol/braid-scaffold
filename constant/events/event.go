@@ -28,6 +28,8 @@ const (
 )
 
 const (
-	API_GuestLogin = "guest_login"
-	API_Heartbeat  = "heartbeat"
+	API_Heartbeat = "heartbeat"
+
+	API_GuestLogin  = "login_guest"
+	API_GetUserInfo = "user_getInfo"
 )

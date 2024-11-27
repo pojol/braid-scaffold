@@ -1,7 +1,7 @@
 syntax = "proto3";
 package gameproto;
 
-import "commproto/comm.proto";
+import "user/user.proto";
 
 message MsgHeader {
     string Event = 1;
@@ -19,10 +19,11 @@ message GuestLoginRes {
     string Token = 2;
 }
 
-message HelloBraidReq {
-    string Msg = 1;
+message UserInfoReq {
 }
 
-message HelloBraidRes {
-    string Msg = 1;
+message UserInfoRes {
+    user.UserModule  User = 1;
+    user.BagModule Bag = 2;
+    user.TimeInfoModule TimeInfo = 3;
 }

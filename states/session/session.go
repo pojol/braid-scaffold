@@ -8,6 +8,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/binary"
+	"fmt"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -78,7 +79,7 @@ func NewSession(conn *websocket.Conn, handler SendCallback, m *Mgr) *Session {
 
 	go s.readLoop()
 	go s.writeLoop()
-	go s.heartbeatLoop()
+	//go s.heartbeatLoop()
 
 	return s
 }
@@ -190,7 +191,9 @@ func (s *Session) writeLoop() {
 				Token: realmsg.Res.Header.Token,
 			}
 
-			if resHeader.Event == events.API_GuestLogin {
+			fmt.Println("res 2 client", resHeader.Event)
+
+			if resHeader.Event == events.API_GuestLogin /* or other login */ {
 				userID, err := token.Parse(resHeader.Token)
 				if err != nil {
 					log.WarnF("bind uid, but token %v parse err %v", resHeader.Token, err)
