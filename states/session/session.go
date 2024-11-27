@@ -74,7 +74,7 @@ func NewSession(conn *websocket.Conn, handler SendCallback, m *Mgr) *Session {
 		createTime: time.Now(),
 	}
 
-	s.wg.Add(3)
+	s.wg.Add(2) // 注意，这个数量是用于监听三个 goroutine 是否成功退出的
 
 	go s.readLoop()
 	go s.writeLoop()

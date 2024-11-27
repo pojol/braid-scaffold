@@ -64,7 +64,7 @@ func (a *UserActor) Init(ctx context.Context) {
 		return nil
 	}, nil)
 
-	a.loginCallback()
+	a.loginCallback() // 完成 actor 具柄注册后通知给客户端，不然消息可能会在消息具柄注册前过来
 	log.InfoF("user actor %v init succ", a.entity.ID)
 }
 
