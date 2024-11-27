@@ -8,7 +8,6 @@ import (
 
 	"github.com/pojol/braid/core"
 	"github.com/pojol/braid/core/actor"
-	"github.com/pojol/braid/router"
 	"github.com/pojol/braid/router/msg"
 )
 
@@ -26,7 +25,7 @@ func MakeDynamicPick(ctx core.ActorContext) core.IChain {
 			}
 
 			// dispatcher to picker node
-			return ctx.Call(router.Target{ID: nodeaddr.Node + "_" + template.ACTOR_DYNAMIC_REGISTER, Ty: template.ACTOR_DYNAMIC_REGISTER, Ev: events.DynamicRegister}, mw)
+			return ctx.Call(nodeaddr.Node+"_"+template.ACTOR_DYNAMIC_REGISTER, template.ACTOR_DYNAMIC_REGISTER, events.DynamicRegister, mw)
 		},
 	}
 }

@@ -21,7 +21,7 @@ type EntityType struct{}
 func Send2Client(ctx core.ActorContext, gateid string, header *router.Header, pmsg proto.Message) {
 	body, _ := proto.Marshal(pmsg)
 
-	ctx.Send(router.Target{ID: gateid, Ev: events.ClientResponse},
+	ctx.Send(gateid, "", events.ClientResponse,
 		msg.NewBuilder(context.TODO()).WithResHeader(header).WithResBody(body).Build(),
 	)
 }

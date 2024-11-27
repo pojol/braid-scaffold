@@ -16,7 +16,6 @@ import (
 	"github.com/pojol/braid/def"
 	"github.com/pojol/braid/lib/log"
 	"github.com/pojol/braid/lib/token"
-	"github.com/pojol/braid/router"
 	"github.com/pojol/braid/router/msg"
 )
 
@@ -71,10 +70,7 @@ func loginImpl(ctx core.ActorContext, mw *msg.Wrapper, loginTy string, id string
 		msgbuild.WithReqCustomFields(fields.ActorID(entity.ID))
 		msgbuild.WithReqCustomFields(fields.ActorTy(template.ACTOR_USER))
 
-		err = ctx.Call(
-			router.Target{ID: def.SymbolLocalFirst, Ty: template.ACTOR_CONTROL, Ev: events.UnregisterActor},
-			msgbuild.Build(),
-		)
+		err = ctx.Call(def.SymbolLocalFirst, template.ACTOR_CONTROL, events.UnregisterActor, msgbuild.Build())
 		if err != nil {
 			log.WarnF("refresh user token err %v", err.Error())
 			return err

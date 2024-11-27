@@ -23,7 +23,7 @@ import (
 	"github.com/pojol/braid/router/msg"
 )
 
-type SendCallback func(target router.Target, mw *msg.Wrapper) error
+type SendCallback func(idOrSymbol, actorType, event string, mw *msg.Wrapper) error
 
 var bufferPool = sync.Pool{
 	New: func() interface{} {
@@ -157,12 +157,7 @@ func (s *Session) readLoop() {
 
 			realmsg.ToBuilder().WithReqCustomFields(fields.SessionID(s.sid))
 
-			err := s.callback(router.Target{
-				ID: actorid,
-				Ty: actorty,
-				Ev: realmsg.Req.Header.Event,
-			}, realmsg)
-
+			err := s.callback(actorid, actorty, realmsg.Req.Header.Event, realmsg)
 			if err != nil {
 				log.WarnF("session %v handle message %v err %v", s.sid, realmsg.Req.Header.Event, err.Error())
 			}

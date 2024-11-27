@@ -166,8 +166,8 @@ func (a *websocketAcceptorActor) handleMessage(ctx context.Context, header *game
 
 	if header.Event == events.API_GuestLogin {
 
-		session := a.sessionMgr.NewSession(ws, func(tar router.Target, mw *msg.Wrapper) error {
-			return a.Sys.Send(tar, mw)
+		session := a.sessionMgr.NewSession(ws, func(idOrSymbol, actorType, event string, mw *msg.Wrapper) error {
+			return a.Sys.Send(idOrSymbol, actorType, event, mw)
 		})
 
 		session.EnqueueRead(sendMsg)

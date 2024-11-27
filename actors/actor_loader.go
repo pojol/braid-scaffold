@@ -11,7 +11,6 @@ import (
 	"github.com/pojol/braid/core/actor"
 	"github.com/pojol/braid/def"
 	"github.com/pojol/braid/lib/log"
-	"github.com/pojol/braid/router"
 	"github.com/pojol/braid/router/msg"
 )
 
@@ -40,12 +39,7 @@ func (al *DefaultActorLoader) Pick(builder core.IActorBuilder) error {
 	msgbu.WithReqCustomFields(fields.ActorTy(builder.GetType()))
 
 	go func() {
-		err := builder.GetSystem().Call(router.Target{
-			ID: def.SymbolWildcard,
-			Ty: template.ACTOR_DYNAMIC_PICKER,
-			Ev: events.DynamicPick},
-			msgbu.Build(),
-		)
+		err := builder.GetSystem().Call(def.SymbolWildcard, template.ACTOR_DYNAMIC_PICKER, events.DynamicPick, msgbu.Build())
 		if err != nil {
 			log.WarnF("[braid.actorLoader] call dynamic picker err %v", err.Error())
 		}

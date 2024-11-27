@@ -58,7 +58,7 @@ func (a *UserActor) Init(ctx context.Context) {
 			msgbuild := msg.NewBuilder(context.TODO())
 			msgbuild.WithReqCustomFields(fields.ActorID(a.Id))
 			msgbuild.WithReqCustomFields(fields.ActorTy(a.Ty))
-			a.Sys.Send(router.Target{ID: def.SymbolLocalFirst, Ty: template.ACTOR_CONTROL, Ev: events.UnregisterActor}, msgbuild.Build())
+			a.Sys.Send(def.SymbolLocalFirst, template.ACTOR_CONTROL, events.UnregisterActor, msgbuild.Build())
 		}
 
 		return nil
@@ -74,7 +74,7 @@ func (a *UserActor) loginCallback() {
 		Token: a.entity.User.Token,
 	})
 
-	a.Sys.Send(router.Target{ID: a.gateID, Ev: events.ClientResponse},
+	a.Sys.Send(a.gateID, "", events.ClientResponse,
 		msg.NewBuilder(context.TODO()).WithResHeader(&router.Header{
 			Event: events.API_GuestLogin, // tmp
 			Token: a.entity.User.Token,
