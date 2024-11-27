@@ -8,7 +8,6 @@ import (
 	"bytes"
 	"context"
 	"encoding/binary"
-	"fmt"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -190,8 +189,6 @@ func (s *Session) writeLoop() {
 				Event: realmsg.Res.Header.Event,
 				Token: realmsg.Res.Header.Token,
 			}
-
-			fmt.Println("res 2 client", resHeader.Event)
 
 			if resHeader.Event == events.API_GuestLogin /* or other login */ {
 				userID, err := token.Parse(resHeader.Token)
