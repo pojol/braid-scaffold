@@ -366,6 +366,8 @@ github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 h1:Jamvg5psRI
 github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/pojol/braid v0.1.3 h1:dkW+0hsCS5edw3jr6BZhyETvyi6tPAn4rcLISssKbOU=
 github.com/pojol/braid v0.1.3/go.mod h1:CUyMAkxuvqUT4NDi23TkNP2jBiczhM3Wr+mwWRWbh94=
+github.com/pojol/braid v0.1.4 h1:RWymuZFX+1BVs2HAXlmrJVerTjwzSJ5GYtL0Rv6G5RA=
+github.com/pojol/braid v0.1.4/go.mod h1:wdFxa4Vejbu1atnZ3UI9Ca2ZH53c1qRdXw4gWY/dmz8=
 github.com/pojol/braid-go v1.4.0 h1:8EPmqJmsGgmMxv3Ly83GgbltD3G4QxNXWoS7htCnZ/E=
 github.com/pojol/braid-go v1.4.0/go.mod h1:h8bUwhzlfumMj5CuyTa9b0ymcAGYwMAe2l5ixUnL5ZQ=
 github.com/pojol/gobot v0.4.5 h1:GN5JiX7y80A6NqYvZhs7VQbPpdULfjl+3fDQXlmK6Pc=
