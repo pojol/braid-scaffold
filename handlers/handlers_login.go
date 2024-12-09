@@ -13,7 +13,6 @@ import (
 
 	"github.com/pojol/braid/core"
 	"github.com/pojol/braid/core/actor"
-	"github.com/pojol/braid/def"
 	"github.com/pojol/braid/lib/log"
 	"github.com/pojol/braid/lib/token"
 	"github.com/pojol/braid/router/msg"
@@ -40,51 +39,46 @@ func MkGuestLogin(ctx core.ActorContext) core.IChain {
 }
 
 func loginImpl(ctx core.ActorContext, mw *msg.Wrapper, loginTy string, id string) error {
-	entity := user.NewEntityWapper(id)
+	info, err := ctx.AddressBook().GetByID(mw.Ctx, id)
 
-	if entity.IsExist() {
-		newToken, err := token.Create(entity.ID)
+	if err == nil && info.ActorId == id { // 存在
+		msgbuild := mw.ToBuilder()
+		msgbuild.WithReqCustomFields(fields.ActorID(id))
+		err = ctx.Call(id, template.ACTOR_USER, events.Ev_UserRefreshSession, msgbuild.Build())
 		if err != nil {
-			return err
+			log.WarnF("login user %v refresh session err %v", id, err.Error())
 		}
-
-		entity.User.Token = newToken
-		log.InfoF("user %v refresh token %v", entity.ID, newToken)
 	} else {
-		entity.ID = id
-		entity.User.Token, _ = token.Create(entity.ID)
-		entity.TimeInfo.CreateTime = time.Now().Unix()
-		entity.TimeInfo.SyncTime = entity.TimeInfo.CreateTime
+		entity := user.NewEntityWapper(id)
 
-		err := entity.Sync(context.TODO(), true)
+		if entity.IsExist() {
+			newToken, err := token.Create(entity.ID)
+			if err != nil {
+				return err
+			}
+
+			entity.User.Token = newToken
+			log.InfoF("user %v refresh token %v", entity.ID, newToken)
+		} else {
+			entity.ID = id
+			entity.User.Token, _ = token.Create(entity.ID)
+			entity.TimeInfo.CreateTime = time.Now().Unix()
+
+			err := entity.Sync(context.TODO(), true)
+			if err != nil {
+				return err
+			}
+
+			log.InfoF("login user %v create succ", entity.ID)
+		}
+
+		err = ctx.Loader(template.ACTOR_USER).WithID(entity.ID).
+			WithOpt(fields.KeyGateID, msg.GetReqField[string](mw, fields.KeyGateID)).
+			WithOpt(fields.KeySessionID, msg.GetReqField[string](mw, fields.KeySessionID)).
+			Picker()
 		if err != nil {
 			return err
 		}
-
-		log.InfoF("login user %v create succ", entity.ID)
-	}
-
-	info, err := ctx.AddressBook().GetByID(mw.Ctx, entity.ID)
-	if err == nil && info.ActorId == entity.ID {
-		msgbuild := msg.NewBuilder(mw.Ctx)
-		msgbuild.WithReqCustomFields(fields.ActorID(entity.ID))
-		msgbuild.WithReqCustomFields(fields.ActorTy(template.ACTOR_USER))
-
-		err = ctx.Call(def.SymbolLocalFirst, template.ACTOR_CONTROL, events.UnregisterActor, msgbuild.Build())
-		if err != nil {
-			log.WarnF("refresh user token err %v", err.Error())
-			return err
-		}
-
-		log.InfoF("login clean before actor %v info", entity.ID)
-	}
-
-	err = ctx.Loader(template.ACTOR_USER).WithID(entity.ID).
-		WithOpt(fields.KeyGateID, msg.GetReqField[string](mw, fields.KeyGateID)).
-		WithOpt(fields.KeySessionID, msg.GetReqField[string](mw, fields.KeySessionID)).
-		Picker()
-	if err != nil {
-		return err
 	}
 
 	return nil

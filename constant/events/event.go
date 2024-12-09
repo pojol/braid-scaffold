@@ -32,4 +32,6 @@ const (
 
 	API_GuestLogin  = "login_guest"
 	API_GetUserInfo = "user_getInfo"
+
+	Ev_UserRefreshSession = "user_refresh_session"
 )
