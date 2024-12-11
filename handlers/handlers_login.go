@@ -13,6 +13,7 @@ import (
 
 	"github.com/pojol/braid/core"
 	"github.com/pojol/braid/core/actor"
+	"github.com/pojol/braid/lib/dismutex"
 	"github.com/pojol/braid/lib/log"
 	"github.com/pojol/braid/lib/token"
 	"github.com/pojol/braid/router/msg"
@@ -39,14 +40,21 @@ func MkGuestLogin(ctx core.ActorContext) core.IChain {
 }
 
 func loginImpl(ctx core.ActorContext, mw *msg.Wrapper, loginTy string, id string) error {
+	muid, err := dismutex.Lock(mw.Ctx, id)
+	if err != nil {
+		return err
+	}
+
 	info, err := ctx.AddressBook().GetByID(mw.Ctx, id)
 
-	if err == nil && info.ActorId == id { // 存在
+	if err == nil && info.ActorId == id {
 		msgbuild := mw.ToBuilder()
 		msgbuild.WithReqCustomFields(fields.ActorID(id))
+		msgbuild.WithReqCustomFields(fields.MutexID(muid))
 		err = ctx.Call(id, template.ACTOR_USER, events.Ev_UserRefreshSession, msgbuild.Build())
 		if err != nil {
 			log.WarnF("login user %v refresh session err %v", id, err.Error())
+			goto ext
 		}
 	} else {
 		entity := user.NewEntityWapper(id)
@@ -54,7 +62,7 @@ func loginImpl(ctx core.ActorContext, mw *msg.Wrapper, loginTy string, id string
 		if entity.IsExist() {
 			newToken, err := token.Create(entity.ID)
 			if err != nil {
-				return err
+				goto ext
 			}
 
 			entity.User.Token = newToken
@@ -66,19 +74,25 @@ func loginImpl(ctx core.ActorContext, mw *msg.Wrapper, loginTy string, id string
 
 			err := entity.Sync(context.TODO(), true)
 			if err != nil {
-				return err
+				goto ext
 			}
 
 			log.InfoF("login user %v create succ", entity.ID)
 		}
 
 		err = ctx.Loader(template.ACTOR_USER).WithID(entity.ID).
-			WithOpt(fields.KeyGateID, msg.GetReqField[string](mw, fields.KeyGateID)).
-			WithOpt(fields.KeySessionID, msg.GetReqField[string](mw, fields.KeySessionID)).
+			WithOpt(fields.KeyGateID, msg.GetReqCustomField[string](mw, fields.KeyGateID)).
+			WithOpt(fields.KeySessionID, msg.GetReqCustomField[string](mw, fields.KeySessionID)).
+			WithOpt(fields.KeyMutexID, muid).
 			Picker()
 		if err != nil {
-			return err
+			goto ext
 		}
+	}
+
+ext:
+	if err != nil {
+		dismutex.Unlock(mw.Ctx, id, muid)
 	}
 
 	return nil

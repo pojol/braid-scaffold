@@ -16,7 +16,7 @@ func MakeDynamicPick(ctx core.ActorContext) core.IChain {
 
 		Handler: func(mw *msg.Wrapper) error {
 
-			actor_ty := msg.GetReqField[string](mw, fields.KeyActorTy)
+			actor_ty := msg.GetReqCustomField[string](mw, fields.KeyActorTy)
 
 			// Select a node with low weight and relatively fewer registered actors of this type
 			nodeaddr, err := ctx.AddressBook().GetLowWeightNodeForActor(mw.Ctx, actor_ty)
@@ -35,8 +35,8 @@ func MakeDynamicRegister(ctx core.ActorContext) core.IChain {
 
 		Handler: func(mw *msg.Wrapper) error {
 
-			actor_ty := msg.GetReqField[string](mw, fields.KeyActorTy)
-			actor_id := msg.GetReqField[string](mw, fields.KeyActorID)
+			actor_ty := msg.GetReqCustomField[string](mw, fields.KeyActorTy)
+			actor_id := msg.GetReqCustomField[string](mw, fields.KeyActorID)
 
 			builder := ctx.Loader(actor_ty)
 			builder.WithID(actor_id)

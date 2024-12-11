@@ -13,6 +13,7 @@ const (
 	KeyUserID    = "UserID"
 	KeyGateID    = "GateID"
 	KeySessionID = "SessionID"
+	KeyMutexID   = "MutexID"
 )
 
 func ErrCode(code errcode.Code) msg.Attr { return msg.Attr{Key: KeyErrCode, Value: code} }
@@ -22,3 +23,4 @@ func ActorTy(ty string) msg.Attr         { return msg.Attr{Key: KeyActorTy, Valu
 func UserID(id string) msg.Attr          { return msg.Attr{Key: KeyUserID, Value: id} }
 func GateID(id string) msg.Attr          { return msg.Attr{Key: KeyGateID, Value: id} }
 func SessionID(id string) msg.Attr       { return msg.Attr{Key: KeySessionID, Value: id} }
+func MutexID(id string) msg.Attr         { return msg.Attr{Key: KeyMutexID, Value: id} }

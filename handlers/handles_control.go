@@ -13,8 +13,8 @@ func MakeUnregisterActor(ctx core.ActorContext) core.IChain {
 	return &actor.DefaultChain{
 		Handler: func(mw *msg.Wrapper) error {
 
-			actor_id := msg.GetReqField[string](mw, fields.KeyActorID)
-			actor_ty := msg.GetReqField[string](mw, fields.KeyActorTy)
+			actor_id := msg.GetReqCustomField[string](mw, fields.KeyActorID)
+			actor_ty := msg.GetReqCustomField[string](mw, fields.KeyActorTy)
 
 			err := ctx.Unregister(actor_id, actor_ty)
 			if err != nil {

@@ -75,7 +75,7 @@ func (a *websocketAcceptorActor) Init(ctx context.Context) {
 		return &actor.DefaultChain{
 			Handler: func(mw *msg.Wrapper) error {
 
-				sid := msg.GetResField[string](mw, fields.KeySessionID)
+				sid := msg.GetResCustomField[string](mw, fields.KeySessionID)
 				session := a.sessionMgr.GetSessionByID(sid)
 				if session != nil {
 					session.EnqueueWrite(mw)
@@ -88,7 +88,7 @@ func (a *websocketAcceptorActor) Init(ctx context.Context) {
 	a.RegisterEvent(events.ClientBroadcast, func(ctx core.ActorContext) core.IChain {
 		return &actor.DefaultChain{
 			Handler: func(mw *msg.Wrapper) error {
-				uid := msg.GetResField[string](mw, fields.KeyUserID)
+				uid := msg.GetResCustomField[string](mw, fields.KeyUserID)
 				session := a.sessionMgr.GetSessionByUID(uid)
 				if session != nil {
 					session.EnqueueWrite(mw)

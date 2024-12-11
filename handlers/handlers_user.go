@@ -43,7 +43,7 @@ func MKGetUserInfo(ctx core.ActorContext) core.IChain {
 			entity.TimeInfo.LoginTime = now.Unix()
 			entity.TimeInfo.SyncTime = now.Unix()
 
-			Send2Client(ctx, msg.GetReqField[string](mw, fields.KeyGateID), mw.Req.Header, &gameproto.UserInfoRes{
+			Send2Client(ctx, msg.GetReqCustomField[string](mw, fields.KeyGateID), mw.Req.Header, &gameproto.UserInfoRes{
 				Bag:      entity.Bag,
 				User:     entity.User,
 				TimeInfo: entity.TimeInfo,
