@@ -27,9 +27,9 @@ func BuildDefaultActorLoader(factory core.IActorFactory) core.IActorLoader {
 	return &DefaultActorLoader{factory: factory}
 }
 
-func (al *DefaultActorLoader) Pick(builder core.IActorBuilder) error {
+func (al *DefaultActorLoader) Pick(ctx context.Context, builder core.IActorBuilder) error {
 
-	msgbu := msg.NewBuilder(context.TODO())
+	msgbu := msg.NewBuilder(ctx)
 
 	for key, value := range builder.GetOptions() {
 		msgbu.WithReqCustomFields(msg.Attr{Key: key, Value: fmt.Sprint(value)})

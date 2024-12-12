@@ -37,6 +37,7 @@ func NewUserActor(p core.IActorBuilder) core.IActor {
 		Runtime:   &actor.Runtime{Id: p.GetID(), Ty: p.GetType(), Sys: p.GetSystem()},
 		gateID:    p.GetOpt(fields.KeyGateID),
 		sessionID: p.GetOpt(fields.KeySessionID),
+		tmpmuid:   p.GetOpt(fields.KeyMutexID),
 		entity:    user.NewEntityWapper(p.GetID()),
 	}
 }
@@ -60,16 +61,13 @@ func (a *UserActor) Init(ctx context.Context) {
 				a.sessionID = msg.GetReqCustomField[string](w, fields.KeySessionID)
 				a.tmpmuid = msg.GetReqCustomField[string](w, fields.KeyMutexID)
 
-				a.loginCallback()
+				a.loginCallback(w.Ctx)
 				return nil
 			},
 		}
 	})
-	// more events ...
 
 	a.RegisterTimer(1000, 60*1000, func(i interface{}) error {
-
-		// check zombie
 		if a.entity.TimeInfo.SyncTime+ActorExpirationSeconds < time.Now().Unix() && a.offline {
 
 			msgbuild := msg.NewBuilder(context.TODO())
@@ -82,11 +80,11 @@ func (a *UserActor) Init(ctx context.Context) {
 		return nil
 	}, nil)
 
-	a.loginCallback() // 完成 actor 具柄注册后通知给客户端，不然消息可能会在消息具柄注册前过来
+	a.loginCallback(ctx)
 	log.InfoF("user actor %v init succ", a.entity.ID)
 }
 
-func (a *UserActor) loginCallback() {
+func (a *UserActor) loginCallback(ctx context.Context) {
 	ok := dismutex.Unlock(context.TODO(), a.Id, a.tmpmuid)
 	if !ok {
 		log.WarnF("user actor %v distributed lock %v release failed", a.Id, a.tmpmuid)
@@ -98,7 +96,7 @@ func (a *UserActor) loginCallback() {
 	})
 
 	a.Sys.Send(a.gateID, "", events.ClientResponse,
-		msg.NewBuilder(context.TODO()).WithResHeader(&router.Header{
+		msg.NewBuilder(ctx).WithResHeader(&router.Header{
 			Event: events.API_GuestLogin, // tmp
 			Token: a.entity.User.Token,
 		}).WithResCustomFields(fields.SessionID(a.sessionID)).WithResBody(body).Build(),

@@ -84,7 +84,7 @@ func loginImpl(ctx core.ActorContext, mw *msg.Wrapper, loginTy string, id string
 			WithOpt(fields.KeyGateID, msg.GetReqCustomField[string](mw, fields.KeyGateID)).
 			WithOpt(fields.KeySessionID, msg.GetReqCustomField[string](mw, fields.KeySessionID)).
 			WithOpt(fields.KeyMutexID, muid).
-			Picker()
+			Picker(mw.Ctx)
 		if err != nil {
 			goto ext
 		}

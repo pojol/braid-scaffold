@@ -155,8 +155,9 @@ func (s *Session) readLoop() {
 				actorty = template.ACTOR_USER
 			}
 
-			realmsg.ToBuilder().WithReqCustomFields(fields.SessionID(s.sid))
+			realmsg.Ctx = context.WithValue(realmsg.Ctx, "request_id", uuid.NewString())
 
+			realmsg.ToBuilder().WithReqCustomFields(fields.SessionID(s.sid))
 			err := s.callback(actorid, actorty, realmsg.Req.Header.Event, realmsg)
 			if err != nil {
 				log.WarnF("session %v handle message %v err %v", s.sid, realmsg.Req.Header.Event, err.Error())

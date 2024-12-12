@@ -11,6 +11,8 @@ import (
 	"github.com/pojol/braid/core"
 	"github.com/pojol/braid/core/node"
 	"github.com/pojol/braid/lib/log"
+	"github.com/pojol/braid/lib/span"
+	"github.com/pojol/braid/lib/tracer"
 )
 
 // This is a demonstration service. After users pull it, they can copy the code for use in their own services and then delete it.
@@ -43,6 +45,18 @@ func main() {
 		panic(fmt.Errorf("node weight %s is not a valid integer", nodeCfg.Weight))
 	}
 
+	trac := tracer.BuildWithOption(
+		tracer.WithHTTP("http://127.0.0.1:14268/api/traces"),
+		tracer.WithProbabilistic(1),
+		tracer.WithServiceName(nodeCfg.ID),
+		tracer.WithSpanFactory(
+			tracer.TracerFactory{
+				Name:    span.SystemCall,
+				Factory: span.CreateCallSpan(span.WithNodeID(nodeCfg.ID)),
+			},
+		),
+	)
+
 	factory := actors.BuildActorFactory(nodeCfg.Actors)
 	loader := actors.BuildDefaultActorLoader(factory)
 
@@ -53,6 +67,7 @@ func main() {
 		core.NodeWithFactory(factory),
 		core.NodeWithID(nodeCfg.Ip),
 		core.NodeWithPort(realNodePort),
+		core.NodeWithTracer(trac),
 	)
 
 	err = nod.Init()
