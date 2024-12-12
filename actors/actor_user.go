@@ -15,6 +15,7 @@ import (
 	"github.com/pojol/braid/core"
 	"github.com/pojol/braid/core/actor"
 	"github.com/pojol/braid/def"
+	"github.com/pojol/braid/lib/dismutex"
 	"github.com/pojol/braid/lib/log"
 	"github.com/pojol/braid/router"
 	"github.com/pojol/braid/router/msg"
@@ -24,6 +25,8 @@ type UserActor struct {
 	*actor.Runtime
 	gateID    string
 	sessionID string
+	tmpmuid   string //
+	offline   bool
 	entity    *user.EntityWrapper
 }
 
@@ -48,16 +51,31 @@ func (a *UserActor) Init(ctx context.Context) {
 	a.Context().WithValue(handlers.EntityType{}, a.entity)
 
 	a.RegisterEvent(events.API_GetUserInfo, handlers.MKGetUserInfo)
+	a.RegisterEvent(events.Ev_UserRefreshSession, func(ctx core.ActorContext) core.IChain {
+		return &actor.DefaultChain{
+			Handler: func(w *msg.Wrapper) error {
+				a.offline = false // active
+
+				a.gateID = msg.GetReqCustomField[string](w, fields.KeyGateID)
+				a.sessionID = msg.GetReqCustomField[string](w, fields.KeySessionID)
+				a.tmpmuid = msg.GetReqCustomField[string](w, fields.KeyMutexID)
+
+				a.loginCallback()
+				return nil
+			},
+		}
+	})
 	// more events ...
 
 	a.RegisterTimer(1000, 60*1000, func(i interface{}) error {
 
 		// check zombie
-		if a.entity.TimeInfo.SyncTime+ActorExpirationSeconds < time.Now().Unix() {
+		if a.entity.TimeInfo.SyncTime+ActorExpirationSeconds < time.Now().Unix() && a.offline {
 
 			msgbuild := msg.NewBuilder(context.TODO())
 			msgbuild.WithReqCustomFields(fields.ActorID(a.Id))
 			msgbuild.WithReqCustomFields(fields.ActorTy(a.Ty))
+
 			a.Sys.Send(def.SymbolLocalFirst, template.ACTOR_CONTROL, events.UnregisterActor, msgbuild.Build())
 		}
 
@@ -69,6 +87,11 @@ func (a *UserActor) Init(ctx context.Context) {
 }
 
 func (a *UserActor) loginCallback() {
+	ok := dismutex.Unlock(context.TODO(), a.Id, a.tmpmuid)
+	if !ok {
+		log.WarnF("user actor %v distributed lock %v release failed", a.Id, a.tmpmuid)
+	}
+
 	body, _ := proto.Marshal(&gameproto.GuestLoginRes{
 		Acc:   a.entity.ID,
 		Token: a.entity.User.Token,
