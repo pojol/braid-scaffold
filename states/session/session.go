@@ -245,6 +245,16 @@ func (s *Session) Reconnect(newConn *websocket.Conn) error {
 func (s *Session) Close() {
 	s.closeOnce.Do(func() {
 		close(s.closeChan)
+
+		if s.uid != "" {
+			// notify user logout
+		}
+
+		err := s.mgr.RemoveSession(s.sid)
+		if err != nil {
+			log.WarnF("session disConnect err %v user %v session %v", err.Error(), s.uid, s.sid)
+		}
+
 		s.conn.Close()
 		s.wg.Wait()
 	})

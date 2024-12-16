@@ -82,30 +82,18 @@ func (m *Mgr) CloseAll() {
 	m.uidSessions = make(map[string]string)
 }
 
-func (m *Mgr) RemoveSessionByUID(uid string) error {
-	m.Lock()
-	defer m.Unlock()
-
-	// 通过 uid 查找 sessionID
-	sessionID, ok := m.uidSessions[uid]
-	if !ok {
-		return fmt.Errorf("session not found for uid: %s", uid)
-	}
-
+func (m *Mgr) RemoveSession(sid string) error {
 	// 获取 session 对象
-	session, exists := m.sessions[sessionID]
+	session, exists := m.sessions[sid]
 	if !exists {
-		// 清理不一致的映射
-		delete(m.uidSessions, uid)
-		return fmt.Errorf("session inconsistency for uid: %s", uid)
+		return fmt.Errorf("session inconsistency for sid: %s", sid)
 	}
-
-	// 关闭会话
-	session.Close()
 
 	// 清理映射关系
-	delete(m.sessions, sessionID)
-	delete(m.uidSessions, uid)
+	delete(m.sessions, sid)
+	if session.uid != "" {
+		delete(m.uidSessions, session.uid)
+	}
 
 	return nil
 }
