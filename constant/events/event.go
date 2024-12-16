@@ -29,6 +29,7 @@ const (
 
 const (
 	API_Heartbeat = "heartbeat"
+	API_Reconnect = "reconnect"
 
 	API_GuestLogin  = "login_guest"
 	API_GetUserInfo = "user_getInfo"

@@ -8,6 +8,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/binary"
+	"errors"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -19,7 +20,6 @@ import (
 	"github.com/pojol/braid/lib/log"
 	"github.com/pojol/braid/lib/token"
 	"github.com/pojol/braid/lib/unbounded"
-	"github.com/pojol/braid/router"
 	"github.com/pojol/braid/router/msg"
 )
 
@@ -53,32 +53,35 @@ type Session struct {
 }
 
 const (
-	StateConnected  = iota // Connected
-	StateAuthorized        // Authorized
-	StateClosed            // Closed
+	StateConnected     = iota // Connected
+	StateAuthorized           // Authorized
+	StateWaitReconnect        // WaitReconnect
+	StateClosed               // Closed
 
-	HeartbeatInterval = 30 * time.Second
-	HeartbeatTimeout  = 90 * time.Second
+	HeartbeatInterval = 5 * time.Second
+	HeartbeatTimeout  = 20 * time.Second
+	ReconnectTimeout  = 60 * time.Second
 )
 
 func NewSession(conn *websocket.Conn, handler SendCallback, m *Mgr) *Session {
 	s := &Session{
-		sid:        uuid.NewString(),
-		mgr:        m,
-		conn:       conn,
-		readQueue:  unbounded.NewUnbounded(),
-		writeQueue: unbounded.NewUnbounded(),
-		closeChan:  make(chan struct{}),
-		callback:   handler,
-		state:      StateConnected,
-		createTime: time.Now(),
+		sid:           uuid.NewString(),
+		mgr:           m,
+		conn:          conn,
+		readQueue:     unbounded.NewUnbounded(),
+		writeQueue:    unbounded.NewUnbounded(),
+		closeChan:     make(chan struct{}),
+		callback:      handler,
+		state:         StateConnected,
+		createTime:    time.Now(),
+		lastHeartbeat: time.Now(),
 	}
 
-	s.wg.Add(2) // 注意，这个数量是用于监听三个 goroutine 是否成功退出的
+	s.wg.Add(3) // 注意，这个数量是用于监听三个 goroutine 是否成功退出的
 
 	go s.readLoop()
 	go s.writeLoop()
-	//go s.heartbeatLoop()
+	go s.heartbeatLoop()
 
 	return s
 }
@@ -110,16 +113,26 @@ func (s *Session) heartbeatLoop() {
 		case <-ticker.C:
 			// 检查是否超时
 			if time.Since(s.lastHeartbeat) > HeartbeatTimeout {
-				log.WarnF("session %v heartbeat timeout, closing connection", s.sid)
-				s.Close()
+				log.InfoF("session %v heartbeat timeout", s.sid)
+				if atomic.CompareAndSwapInt32(&s.state, StateAuthorized, StateWaitReconnect) {
+					log.InfoF("session %v heartbeat timeout, waiting for reconnect", s.sid)
+
+					// 启动重连超时检查
+					go func() {
+						select {
+						case <-time.After(ReconnectTimeout):
+							// 如果超过重连时间限制，才真正关闭会话
+							if atomic.LoadInt32(&s.state) == StateWaitReconnect {
+								log.InfoF("session %v reconnect timeout, closing connection", s.sid)
+								s.Close()
+							}
+						case <-s.closeChan:
+							return
+						}
+					}()
+				}
 				return
 			}
-
-			// 发送心跳包
-			heartbeat := msg.NewBuilder(context.TODO()).WithResHeader(&router.Header{
-				Event: "heartbeat",
-			}).Build()
-			s.EnqueueWrite(heartbeat)
 		}
 	}
 }
@@ -136,10 +149,9 @@ func (s *Session) readLoop() {
 			s.readQueue.Load()
 
 			var actorid, actorty string
-
 			if realmsg.Req.Header.Event == "" {
 				log.DebugF("session %v read empty event message", s.sid)
-				return
+				continue
 			}
 
 			switch realmsg.Req.Header.Event {
@@ -148,8 +160,9 @@ func (s *Session) readLoop() {
 				actorty = template.ACTOR_LOGIN
 			case events.API_Heartbeat:
 				s.lastHeartbeat = time.Now()
+				log.DebugF("receive heartbeat from session %v", s.sid)
 				// If users need to handle business logic through heartbeat, the message can be passed downstream
-				return
+				continue
 			default:
 				actorid = s.uid
 				actorty = template.ACTOR_USER
@@ -214,6 +227,19 @@ func (s *Session) writeLoop() {
 			bufferPool.Put(buf)
 		}
 	}
+}
+
+func (s *Session) Reconnect(newConn *websocket.Conn) error {
+	if atomic.LoadInt32(&s.state) != StateWaitReconnect {
+		return errors.New("session not in reconnect state")
+	}
+
+	s.conn = newConn
+	s.lastHeartbeat = time.Now()
+	atomic.StoreInt32(&s.state, StateAuthorized)
+
+	log.InfoF("session %v successfully reconnected", s.sid)
+	return nil
 }
 
 func (s *Session) Close() {

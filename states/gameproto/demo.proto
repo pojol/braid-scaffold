@@ -27,3 +27,9 @@ message UserInfoRes {
     user.BagModule Bag = 2;
     user.TimeInfoModule TimeInfo = 3;
 }
+
+message HeartbeatReq {
+}
+
+message ReconnectReq {
+}

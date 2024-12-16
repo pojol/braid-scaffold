@@ -141,10 +141,14 @@ func (a *websocketAcceptorActor) received(c echo.Context) error {
 			continue
 		}
 
+		if header.Event == "" {
+			log.DebugF("empty event message")
+			continue
+		}
+
 		if err := a.handleMessage(context.Background(), header, msg, ws); err != nil {
 			log.WarnF("handle message error: %v", err)
 		}
-
 	}
 
 	return nil
@@ -172,6 +176,18 @@ func (a *websocketAcceptorActor) handleMessage(ctx context.Context, header *game
 
 		session.EnqueueRead(sendMsg)
 
+	} else if header.Event == events.API_Reconnect {
+		userID, err = token.Parse(header.Token)
+		if err != nil {
+			return ErrInvalidToken
+		}
+
+		session := a.sessionMgr.GetSessionByUID(userID)
+		if session == nil {
+			return ErrSessionNotFound
+		}
+
+		session.Reconnect(ws)
 	} else {
 		userID, err = token.Parse(header.Token)
 		if err != nil {
@@ -181,11 +197,18 @@ func (a *websocketAcceptorActor) handleMessage(ctx context.Context, header *game
 		session := a.sessionMgr.GetSessionByUID(userID)
 		if session != nil {
 			session.EnqueueRead(sendMsg)
+		} else {
+			log.WarnF("user %v session not found", userID)
 		}
 	}
 
 	return nil
 }
+
+const (
+	MaxMessageSize = 1024 * 1024 // 1MB
+	MaxHeaderSize  = 1024        // 1KB
+)
 
 // Message Frame Format:
 // ┌──────────────┬─────────────┬─────────────┐
@@ -193,11 +216,21 @@ func (a *websocketAcceptorActor) handleMessage(ctx context.Context, header *game
 // │   (2 bytes)  │    (var)    │    (var)    │
 // └──────────────┴─────────────┴─────────────┘
 func parseMessageHeader(msg []byte) (*gameproto.MsgHeader, error) {
+	// 检查总消息大小
+	if len(msg) > MaxMessageSize {
+		return nil, fmt.Errorf("message too large: %d bytes", len(msg))
+	}
+
 	if len(msg) < 2 {
 		return nil, ErrInvalidMessageFormat
 	}
 
 	headerLen := binary.LittleEndian.Uint16(msg[:2])
+	// 检查header大小
+	if headerLen > MaxHeaderSize {
+		return nil, fmt.Errorf("header too large: %d bytes", headerLen)
+	}
+
 	if len(msg) < int(2+headerLen) {
 		return nil, ErrInvalidMessageFormat
 	}
