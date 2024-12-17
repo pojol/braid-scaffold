@@ -30,5 +30,5 @@ func NewDynamicRegisterActor(p core.IActorBuilder) core.IActor {
 func (a *dynamicRegisterActor) Init(ctx context.Context) {
 	a.Runtime.Init(ctx)
 
-	a.RegisterEvent(events.DynamicRegister, handlers.MakeDynamicRegister)
+	a.OnEvent(events.DynamicRegister, handlers.MakeDynamicRegister)
 }

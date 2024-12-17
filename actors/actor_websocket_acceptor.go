@@ -71,7 +71,7 @@ func (a *websocketAcceptorActor) Init(ctx context.Context) {
 
 	a.echoptr.GET("/ws", a.received)
 
-	a.RegisterEvent(events.ClientResponse, func(ctx core.ActorContext) core.IChain {
+	a.OnEvent(events.ClientResponse, func(ctx core.ActorContext) core.IChain {
 		return &actor.DefaultChain{
 			Handler: func(mw *msg.Wrapper) error {
 
@@ -85,7 +85,7 @@ func (a *websocketAcceptorActor) Init(ctx context.Context) {
 			},
 		}
 	})
-	a.RegisterEvent(events.ClientBroadcast, func(ctx core.ActorContext) core.IChain {
+	a.OnEvent(events.ClientBroadcast, func(ctx core.ActorContext) core.IChain {
 		return &actor.DefaultChain{
 			Handler: func(mw *msg.Wrapper) error {
 				uid := msg.GetResCustomField[string](mw, fields.KeyUserID)
@@ -98,7 +98,7 @@ func (a *websocketAcceptorActor) Init(ctx context.Context) {
 		}
 	})
 
-	a.RegisterTimer(1000, 1000*60*10, func(i interface{}) error {
+	a.OnTimer(1000, 1000*60*10, func(i interface{}) error {
 		a.sessionMgr.CleanupExpiredSessions(time.Minute * 10)
 		return nil
 	}, nil)

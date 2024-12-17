@@ -27,5 +27,5 @@ func NewDynamicPickerActor(p core.IActorBuilder) core.IActor {
 
 func (a *dynamicPickerActor) Init(ctx context.Context) {
 	a.Runtime.Init(ctx)
-	a.RegisterEvent(events.DynamicPick, handlers.MakeDynamicPick)
+	a.OnEvent(events.DynamicPick, handlers.MakeDynamicPick)
 }

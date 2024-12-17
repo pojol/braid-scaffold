@@ -51,8 +51,8 @@ func (a *UserActor) Init(ctx context.Context) {
 
 	a.Context().WithValue(handlers.EntityType{}, a.entity)
 
-	a.RegisterEvent(events.API_GetUserInfo, handlers.MKGetUserInfo)
-	a.RegisterEvent(events.Ev_UserRefreshSession, func(ctx core.ActorContext) core.IChain {
+	a.OnEvent(events.API_GetUserInfo, handlers.MKGetUserInfo)
+	a.OnEvent(events.Ev_UserRefreshSession, func(ctx core.ActorContext) core.IChain {
 		return &actor.DefaultChain{
 			Handler: func(w *msg.Wrapper) error {
 				a.offline = false // active
@@ -67,7 +67,7 @@ func (a *UserActor) Init(ctx context.Context) {
 		}
 	})
 
-	a.RegisterTimer(1000, 60*1000, func(i interface{}) error {
+	a.OnTimer(1000, 60*1000, func(i interface{}) error {
 		if a.entity.TimeInfo.SyncTime+ActorExpirationSeconds < time.Now().Unix() && a.offline {
 
 			msgbuild := msg.NewBuilder(context.TODO())

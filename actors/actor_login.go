@@ -23,6 +23,6 @@ func NewLoginActor(p core.IActorBuilder) core.IActor {
 func (a *loginActor) Init(ctx context.Context) {
 	a.Runtime.Init(ctx)
 
-	a.RegisterEvent(events.API_GuestLogin, handlers.MkGuestLogin)
+	a.OnEvent(events.API_GuestLogin, handlers.MkGuestLogin)
 	// other login
 }

@@ -28,5 +28,5 @@ func NewControlActor(p core.IActorBuilder) core.IActor {
 func (a *controlActor) Init(ctx context.Context) {
 	a.Runtime.Init(ctx)
 
-	a.RegisterEvent(events.UnregisterActor, handlers.MakeUnregisterActor)
+	a.OnEvent(events.UnregisterActor, handlers.MakeUnregisterActor)
 }

@@ -10,7 +10,7 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/gorilla/websocket v1.5.3
 	github.com/labstack/echo/v4 v4.12.0
-	github.com/pojol/braid v0.1.7
+	github.com/pojol/braid v0.1.8
 	github.com/pojol/gobot v0.4.5
 	github.com/redis/go-redis/v9 v9.6.1
 	github.com/yuin/gopher-lua v1.1.1
